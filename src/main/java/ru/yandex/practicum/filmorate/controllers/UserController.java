@@ -26,7 +26,7 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if(validationId(user) && validationEmail(user) && validation(user)) {
+        if(validationId(user) && checkIdDuplication(user) && validationEmail(user) && validation(user)) {
             users.put(user.getId(), user);
             log.info("User has been added");
         }
@@ -35,7 +35,7 @@ public class UserController {
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        if(validation(user)) {
+        if(validationId(user) && validationEmail(user) && validation(user)) {
             users.put(user.getId(), user);
             log.info("User has been updated");
         }
@@ -74,14 +74,20 @@ public class UserController {
             user.getId();
         } catch (NullPointerException exp) {
             user.setId(1);
+            log.info("ID has been changed");
         }
         int id = user.getId();
         if (id <= 0) {
-            id = 1;
+            user.setId(1);
+            log.info("ID has been changed");
         }
+        return true;
+    }
+
+    private static boolean checkIdDuplication(User user) {
         if (users.containsKey(user.getId())) {
-            user.setId(id + 1);
-            validationId(user);
+            user.setId(user.getId() + 1);
+            checkIdDuplication(user);
         }
         log.info("ID has been checked");
         return true;

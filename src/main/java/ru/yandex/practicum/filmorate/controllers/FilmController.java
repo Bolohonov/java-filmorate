@@ -6,6 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -27,7 +28,7 @@ public class FilmController {
 
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
-        if (validationId(film) && validation(film)) {
+        if (validationId(film) && checkIdDuplication(film) && validation(film)) {
             films.put(film.getId(), film);
             log.info("Film has been added");
         }
@@ -36,7 +37,7 @@ public class FilmController {
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        if (validation(film)) {
+        if (validationId(film) && validation(film)) {
             films.put(film.getId(), film);
             log.info("Film has been updated");
         }
@@ -64,14 +65,20 @@ public class FilmController {
             film.getId();
         } catch (NullPointerException exp) {
             film.setId(1);
+            log.info("ID has been changed");
         }
         int id = film.getId();
         if (id <= 0) {
-            id = 1;
+            film.setId(1);
+            log.info("ID has been changed");
         }
+        return true;
+    }
+
+    private static boolean checkIdDuplication(Film film) {
         if (films.containsKey(film.getId())) {
-            film.setId(id + 1);
-            validationId(film);
+            film.setId(film.getId() + 1);
+            checkIdDuplication(film);
         }
         log.info("ID has been checked");
         return true;
