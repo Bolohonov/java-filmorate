@@ -70,10 +70,14 @@ public class UserController {
     }
 
     private static boolean validationId(User user) {
+        try {
+            user.getId();
+        } catch (NullPointerException exp) {
+            user.setId(1);
+        }
         int id = user.getId();
         if (id <= 0) {
-            log.info("Wrong ID");
-            throw new ValidationException("Указан неверный ID");
+            id = 1;
         }
         if (users.containsKey(user.getId())) {
             user.setId(id + 1);

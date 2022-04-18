@@ -10,7 +10,6 @@ import java.time.LocalDate;
 
 @Data
 public class Film {
-    @NotNull
     private int id;
 
     @NotBlank(message = "name may not be null")
