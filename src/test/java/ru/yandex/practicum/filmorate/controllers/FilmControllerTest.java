@@ -59,24 +59,6 @@ class FilmControllerTest {
                 exception.getMessage());
     }
 
-//    @Test
-//    void postNameIsNull() {
-//        Film film = new Film();
-//        film.setId(3);
-//        //film.setName("TestName");
-//        film.setDescription("TestDescription");
-//        film.setReleaseDate(LocalDate.of(1995,10,5));
-//        film.setDuration(Duration.ofMinutes(105));
-//        controller.post(film);
-//        controller.findAll().forEach(System.out::println);
-////        final ValidationException exception = assertThrows(
-////                ValidationException.class,
-////                () -> controller.post(film)
-////        );
-////        assertEquals("Указана неверная дата релиза.",
-////                exception.getMessage());
-//    }
-
     @Test
     void postDuplicatedId() {
         Film film = new Film();

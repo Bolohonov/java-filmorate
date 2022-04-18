@@ -51,7 +51,7 @@ public class UserController {
             log.info("Name is blank");
             user.setName(user.getLogin());
         }
-        if (user.getBirthDate().isAfter(LocalDate.now())) {
+        if (user.getBirthday().isAfter(LocalDate.now())) {
             log.info("BirthDate is incorrect");
             throw new ValidationException("Указана неверная дата рождения.");
         }
