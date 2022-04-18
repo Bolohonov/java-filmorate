@@ -37,7 +37,7 @@ public class FilmController {
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        if (validationId(film) && validation(film)) {
+        if (validationIdUpdate(film) && validation(film)) {
             films.put(film.getId(), film);
             log.info("Film has been updated");
         }
@@ -70,6 +70,23 @@ public class FilmController {
         int id = film.getId();
         if (id <= 0) {
             film.setId(1);
+            log.info("ID has been changed");
+        }
+        return true;
+    }
+
+    private static boolean validationIdUpdate(Film film) {
+        try {
+            film.getId();
+        } catch (NullPointerException exp) {
+            film.setId(1);
+            checkIdDuplication(film);
+            log.info("ID has been changed");
+        }
+        int id = film.getId();
+        if (id <= 0) {
+            film.setId(1);
+            checkIdDuplication(film);
             log.info("ID has been changed");
         }
         return true;

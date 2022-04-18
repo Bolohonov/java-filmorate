@@ -35,7 +35,7 @@ public class UserController {
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        if(validationId(user) && validationEmail(user) && validation(user)) {
+        if(validationIdUpdate(user) && validationEmail(user) && validation(user)) {
             users.put(user.getId(), user);
             log.info("User has been updated");
         }
@@ -79,6 +79,23 @@ public class UserController {
         int id = user.getId();
         if (id <= 0) {
             user.setId(1);
+            log.info("ID has been changed");
+        }
+        return true;
+    }
+
+    private static boolean validationIdUpdate(User user) {
+        try {
+            user.getId();
+        } catch (NullPointerException exp) {
+            user.setId(1);
+            checkIdDuplication(user);
+            log.info("ID has been changed");
+        }
+        int id = user.getId();
+        if (id <= 0) {
+            user.setId(1);
+            checkIdDuplication(user);
             log.info("ID has been changed");
         }
         return true;
