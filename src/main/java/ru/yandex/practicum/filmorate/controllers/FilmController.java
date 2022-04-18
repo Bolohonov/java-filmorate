@@ -57,6 +57,9 @@ public class FilmController {
 
     private static boolean validationId(Film film) {
         int id = film.getId();
+        if (id < 0) {
+            id = 0;
+        }
         if (films.containsKey(film.getId())) {
             film.setId(id + 1);
             validationId(film);
