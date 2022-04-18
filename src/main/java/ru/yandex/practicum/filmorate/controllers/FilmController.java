@@ -52,6 +52,10 @@ public class FilmController {
             log.info("ReleaseDate isBefore 1985.12.28");
             throw new ValidationException("Указана неверная дата релиза.");
         }
+        if (film.getDuration().isNegative()) {
+            log.info("Duration is negative");
+            throw new ValidationException("Указана отрицательная продолжительность.");
+        }
         return true;
     }
 

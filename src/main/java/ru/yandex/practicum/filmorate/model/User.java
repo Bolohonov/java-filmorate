@@ -10,7 +10,7 @@ import java.time.LocalDate;
 
 @Data
 public class User {
-    @NotBlank
+    @NotNull
     @Positive
     private int id;
 
@@ -18,7 +18,7 @@ public class User {
     @NotNull
     private String email;
 
-    @NotNull(message = "Login may not bee null")
+    @NotBlank(message = "Login may not bee null")
     private String login;
 
     private String name;
