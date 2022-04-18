@@ -71,9 +71,6 @@ public class UserController {
 
     private static boolean validationId(User user) {
         int id = user.getId();
-        if (id <= 0) {
-            id = 1;
-        }
         if (users.containsKey(user.getId())) {
             user.setId(id + 1);
             validationId(user);
