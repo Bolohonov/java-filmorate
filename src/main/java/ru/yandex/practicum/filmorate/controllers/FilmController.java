@@ -61,6 +61,10 @@ public class FilmController {
 
     private static boolean validationId(Film film) {
         int id = film.getId();
+        if (id <= 0) {
+            log.info("Wrong ID");
+            throw new ValidationException("Указан неверный ID");
+        }
         if (films.containsKey(film.getId())) {
             film.setId(id + 1);
             validationId(film);
