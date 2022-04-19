@@ -10,7 +10,6 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
-
     private static final FilmController controller = new FilmController();
 
     @Test
@@ -18,7 +17,7 @@ class FilmControllerTest {
         Film film = new Film();
         film.setName("TestName");
         film.setDescription("TestDescription");
-        film.setReleaseDate(LocalDate.of(2015,10,5));
+        film.setReleaseDate(LocalDate.of(2015, 10, 5));
         film.setDuration(Duration.ofMinutes(105));
         controller.post(film);
         assertTrue(controller.findAll().contains(film));
@@ -31,7 +30,7 @@ class FilmControllerTest {
         String str = "Test";
         str = str.repeat(51);
         film.setDescription(str);
-        film.setReleaseDate(LocalDate.of(2015,10,5));
+        film.setReleaseDate(LocalDate.of(2015, 10, 5));
         film.setDuration(Duration.ofMinutes(105));
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -46,7 +45,7 @@ class FilmControllerTest {
         Film film = new Film();
         film.setName("TestName");
         film.setDescription("TestDescription");
-        film.setReleaseDate(LocalDate.of(1895,10,5));
+        film.setReleaseDate(LocalDate.of(1895, 10, 5));
         film.setDuration(Duration.ofMinutes(105));
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -61,7 +60,7 @@ class FilmControllerTest {
         Film film = new Film();
         film.setName("TestName6");
         film.setDescription("TestDescription6");
-        film.setReleaseDate(LocalDate.of(2016,10,5));
+        film.setReleaseDate(LocalDate.of(2016, 10, 5));
         film.setDuration(Duration.ofMinutes(106));
         controller.post(film);
         film.setName("New");
@@ -74,7 +73,7 @@ class FilmControllerTest {
         Film film = new Film();
         film.setName("TestName6");
         film.setDescription("TestDescription6");
-        film.setReleaseDate(LocalDate.of(2016,10,5));
+        film.setReleaseDate(LocalDate.of(2016, 10, 5));
         film.setDuration(Duration.ofMinutes(106));
         controller.post(film);
         film.setId(-5);

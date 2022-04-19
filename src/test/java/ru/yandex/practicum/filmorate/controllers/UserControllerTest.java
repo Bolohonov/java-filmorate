@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
-
     private static final UserController controller = new UserController();
 
     @Test
@@ -20,7 +19,7 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("IvanTest");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan111@yandex.ru");
         controller.create(user);
         assertTrue(controller.findAll().contains(user));
@@ -31,13 +30,13 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("IvanTest");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan333@yandex.ru");
         controller.create(user);
         User user2 = new User();
         user2.setLogin("IvanTest2");
         user2.setName("IvanIvan");
-        user2.setBirthday(LocalDate.of(1999,12,15));
+        user2.setBirthday(LocalDate.of(1999, 12, 15));
         user2.setEmail("ivan333@yandex.ru");
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -53,7 +52,7 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("Ivan Test");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan@yandex.ru");
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -82,7 +81,7 @@ class UserControllerTest {
         controller.findAll().clear();
         User user = new User();
         user.setLogin("IvanTest");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan@yandex.ru");
         controller.create(user);
         String actualName = "";
@@ -99,7 +98,7 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("IvanTest");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(2022,12,15));
+        user.setBirthday(LocalDate.of(2022, 12, 15));
         user.setEmail("ivan222@yandex.ru");
         final ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -114,7 +113,7 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("IvanTest");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan555@yandex.ru");
         controller.create(user);
         user.setLogin("New");
@@ -127,7 +126,7 @@ class UserControllerTest {
         User user = new User();
         user.setLogin("IvanTest");
         user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setBirthday(LocalDate.of(1999, 12, 15));
         user.setEmail("ivan555@yandex.ru");
         controller.create(user);
         user.setId(-5);
