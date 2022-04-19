@@ -1,12 +1,10 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -19,7 +17,8 @@ import java.util.Map;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private static final Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
+    private int id;
 
     @GetMapping
     public Collection<Film> findAll() {
@@ -28,7 +27,8 @@ public class FilmController {
 
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
-        if (validationId(film) && checkIdDuplication(film) && validation(film)) {
+        if (validateFilm(film)) {
+            film.setId(appointId());
             films.put(film.getId(), film);
             log.info("Film has been added");
         }
@@ -37,15 +37,15 @@ public class FilmController {
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        if (validationIdUpdate(film) && validation(film)) {
+        if (validateId(film) && validateFilm(film)) {
             films.put(film.getId(), film);
             log.info("Film has been updated");
         }
         return film;
     }
 
-    private static boolean validation(Film film) {
-        if(film.getDescription().length() > 200) {
+    private boolean validateFilm(Film film) {
+        if (film.getDescription().length() > 200) {
             log.info("Description is too long");
             throw new ValidationException("Описание слишком длинное.");
         }
@@ -60,44 +60,29 @@ public class FilmController {
         return true;
     }
 
-    private static boolean validationId(Film film) {
-        try {
-            film.getId();
-        } catch (NullPointerException exp) {
-            film.setId(1);
-            log.info("ID has been changed");
-        }
-        int id = film.getId();
-        if (id <= 0) {
-            film.setId(1);
-            log.info("ID has been changed");
+    private boolean validateId(Film film) {
+        if (film.getId() <= 0) {
+            log.info("ID wrong format");
+            throw new ValidationException("ID должен быть положительным.");
         }
         return true;
     }
 
-    private static boolean validationIdUpdate(Film film) {
-        try {
-            film.getId();
-        } catch (NullPointerException exp) {
-            film.setId(1);
-            checkIdDuplication(film);
-            log.info("ID has been changed");
-        }
-        int id = film.getId();
-        if (id <= 0) {
-            film.setId(1);
-            checkIdDuplication(film);
-            log.info("ID has been changed");
-        }
-        return true;
-    }
-
-    private static boolean checkIdDuplication(Film film) {
-        if (films.containsKey(film.getId())) {
-            film.setId(film.getId() + 1);
-            checkIdDuplication(film);
+    private boolean checkIdNotDuplicated(int id) {
+        if (films.containsKey(id)) {
+            log.info("Id exists");
+            throw new ValidationException("ID уже существует.");
         }
         log.info("ID has been checked");
         return true;
+    }
+
+    private int appointId() {
+        ++id;
+        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
+            return id;
+        } else {
+            return appointId();
+        }
     }
 }

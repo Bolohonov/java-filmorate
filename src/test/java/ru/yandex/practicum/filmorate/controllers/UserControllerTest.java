@@ -3,20 +3,21 @@ package ru.yandex.practicum.filmorate.controllers;
 import org.junit.jupiter.api.Test;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.time.Duration;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class UserControllerTest {
 
-    UserController controller = new UserController();
+    private static final UserController controller = new UserController();
 
     @Test
     void createStandardBehavior() {
         User user = new User();
-        user.setId(1);
         user.setLogin("IvanTest");
         user.setName("Ivan");
         user.setBirthday(LocalDate.of(1999,12,15));
@@ -28,14 +29,12 @@ class UserControllerTest {
     @Test
     void createDuplicatedEmail() {
         User user = new User();
-        user.setId(1);
         user.setLogin("IvanTest");
         user.setName("Ivan");
         user.setBirthday(LocalDate.of(1999,12,15));
         user.setEmail("ivan333@yandex.ru");
         controller.create(user);
         User user2 = new User();
-        user2.setId(2);
         user2.setLogin("IvanTest2");
         user2.setName("IvanIvan");
         user2.setBirthday(LocalDate.of(1999,12,15));
@@ -52,7 +51,6 @@ class UserControllerTest {
     @Test
     void createWhitespacesInLogin() {
         User user = new User();
-        user.setId(1);
         user.setLogin("Ivan Test");
         user.setName("Ivan");
         user.setBirthday(LocalDate.of(1999,12,15));
@@ -83,24 +81,22 @@ class UserControllerTest {
     void createNameIsNull() {
         controller.findAll().clear();
         User user = new User();
-        user.setId(1);
         user.setLogin("IvanTest");
         user.setBirthday(LocalDate.of(1999,12,15));
         user.setEmail("ivan@yandex.ru");
         controller.create(user);
-        User user2 = new User();
-        user2.setId(1);
-        user2.setLogin("IvanTest");
-        user2.setName("IvanTest");
-        user2.setBirthday(LocalDate.of(1999,12,15));
-        user2.setEmail("ivan@yandex.ru");
-        assertTrue(controller.findAll().contains(user2));
+        String actualName = "";
+        for (User u : controller.findAll()) {
+            if (u.getLogin().equals("IvanTest")) {
+                actualName = u.getName();
+            }
+        }
+        assertEquals("IvanTest", actualName);
     }
 
     @Test
     void createIncorrectBirthDate() {
         User user = new User();
-        user.setId(1);
         user.setLogin("IvanTest");
         user.setName("Ivan");
         user.setBirthday(LocalDate.of(2022,12,15));
@@ -114,36 +110,8 @@ class UserControllerTest {
     }
 
     @Test
-    void createDuplicatedId() {
-        controller.findAll().clear();
-        User user = new User();
-        user.setId(1);
-        user.setLogin("IvanTest");
-        user.setName("Ivan");
-        user.setBirthday(LocalDate.of(1999,12,15));
-        user.setEmail("ivan777@yandex.ru");
-        controller.create(user);
-        User user2 = new User();
-        user2.setId(1);
-        user2.setLogin("IvanTest2");
-        user2.setName("IvanIvan");
-        user2.setBirthday(LocalDate.of(1999,12,15));
-        user2.setEmail("ivan333@yandex.ru");
-        controller.create(user2);
-        User user3 = new User();
-        user3.setId(2);
-        user3.setLogin("IvanTest2");
-        user3.setName("IvanIvan");
-        user3.setBirthday(LocalDate.of(1999,12,15));
-        user3.setEmail("ivan333@yandex.ru");
-        assertTrue(controller.findAll().contains(user3));
-
-    }
-
-    @Test
     void putStandardBehavior() {
         User user = new User();
-        user.setId(1);
         user.setLogin("IvanTest");
         user.setName("Ivan");
         user.setBirthday(LocalDate.of(1999,12,15));
@@ -152,5 +120,22 @@ class UserControllerTest {
         user.setLogin("New");
         controller.put(user);
         assertTrue(controller.findAll().contains(user));
+    }
+
+    @Test
+    void putWrongId() {
+        User user = new User();
+        user.setLogin("IvanTest");
+        user.setName("Ivan");
+        user.setBirthday(LocalDate.of(1999,12,15));
+        user.setEmail("ivan555@yandex.ru");
+        controller.create(user);
+        user.setId(-5);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> controller.put(user)
+        );
+        assertEquals("ID должен быть положительным.",
+                exception.getMessage());
     }
 }

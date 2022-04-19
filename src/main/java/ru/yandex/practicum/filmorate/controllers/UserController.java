@@ -17,7 +17,8 @@ import java.util.Map;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private static final Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, User> users = new HashMap<>();
+    private int id;
 
     @GetMapping
     public Collection<User> findAll() {
@@ -26,7 +27,8 @@ public class UserController {
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if(validationId(user) && checkIdDuplication(user) && validationEmail(user) && validation(user)) {
+        if (validateUser(user) && validateEmailNotDuplicated(user)) {
+            user.setId(appointId());
             users.put(user.getId(), user);
             log.info("User has been added");
         }
@@ -35,14 +37,14 @@ public class UserController {
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        if(validationIdUpdate(user) && validationEmail(user) && validation(user)) {
+        if (validateId(user) && validateUser(user)) {
             users.put(user.getId(), user);
             log.info("User has been updated");
         }
         return user;
     }
 
-    private static boolean validation(User user) {
+    private static boolean validateUser(User user) {
         if (user.getLogin().contains(" ")) {
             log.info("Whitespaces in login");
             throw new ValidationException("Логин не может содержать пробелы.");
@@ -58,9 +60,9 @@ public class UserController {
         return true;
     }
 
-    private static boolean validationEmail(User user) {
+    private boolean validateEmailNotDuplicated(User user) {
         for (User u : users.values()) {
-            if(u.getEmail().equals(user.getEmail())) {
+            if (u.getEmail().equals(user.getEmail())) {
                 log.info("Duplicated email");
                 throw new ValidationException("Пользователь с электронной почтой " +
                         user.getEmail() + " уже зарегистрирован.");
@@ -69,44 +71,29 @@ public class UserController {
         return true;
     }
 
-    private static boolean validationId(User user) {
-        try {
-            user.getId();
-        } catch (NullPointerException exp) {
-            user.setId(1);
-            log.info("ID has been changed");
-        }
-        int id = user.getId();
-        if (id <= 0) {
-            user.setId(1);
-            log.info("ID has been changed");
+    private boolean validateId(User user) {
+        if (user.getId() <= 0) {
+            log.info("ID wrong format");
+            throw new ValidationException("ID должен быть положительным.");
         }
         return true;
     }
 
-    private static boolean validationIdUpdate(User user) {
-        try {
-            user.getId();
-        } catch (NullPointerException exp) {
-            user.setId(1);
-            checkIdDuplication(user);
-            log.info("ID has been changed");
-        }
-        int id = user.getId();
-        if (id <= 0) {
-            user.setId(1);
-            checkIdDuplication(user);
-            log.info("ID has been changed");
-        }
-        return true;
-    }
-
-    private static boolean checkIdDuplication(User user) {
-        if (users.containsKey(user.getId())) {
-            user.setId(user.getId() + 1);
-            checkIdDuplication(user);
+    private boolean checkIdNotDuplicated(int id) {
+        if (users.containsKey(id)) {
+            log.info("Id exists");
+            throw new ValidationException("ID уже существует.");
         }
         log.info("ID has been checked");
         return true;
+    }
+
+    private int appointId() {
+        ++id;
+        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
+            return id;
+        } else {
+            return appointId();
+        }
     }
 }
