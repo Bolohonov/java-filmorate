@@ -57,8 +57,8 @@ public class FilmService {
 
     public Film removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId) != null) {
-            filmStorage.getFilm(filmId).addLike(userId);
-            log.info("User " + userId + " likes film with ID " + filmId);
+            filmStorage.getFilm(filmId).removeLike(userId);
+            log.info("User " + userId + " remove like from film with ID " + filmId);
         }
         return filmStorage.getFilm(filmId);
     }
