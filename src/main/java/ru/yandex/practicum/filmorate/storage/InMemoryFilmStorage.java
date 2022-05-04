@@ -1,14 +1,18 @@
 package ru.yandex.practicum.filmorate.storage;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
+    private int id;
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
@@ -17,8 +21,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void addFilm(Film film) {
+    public Film addFilm(Film film) {
+        film.setId(appointId());
         films.put(film.getId(), film);
+        log.info("Film has been added to storage");
+        return film;
     }
 
     @Override
@@ -29,5 +36,24 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void updateFilm(Film film) {
         films.put(film.getId(), film);
+        log.info("Film has been updated in storage");
+    }
+
+    private boolean checkIdNotDuplicated(int id) {
+        if (films.containsKey(id)) {
+            log.info("Id exists");
+            throw new ValidationException("ID уже существует.");
+        }
+        log.info("ID has been checked");
+        return true;
+    }
+
+    private int appointId() {
+        ++id;
+        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
+            return id;
+        } else {
+            return appointId();
+        }
     }
 }

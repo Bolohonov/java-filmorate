@@ -6,7 +6,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
@@ -17,88 +17,29 @@ import java.util.Collection;
 @RequestMapping("/users")
 @Slf4j
 public class UserController {
-    private int id;
-    private final UserStorage userStorage;
+    private final UserService userService;
 
     @Autowired
-    public UserController(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
     @GetMapping
     public Collection<User> findAll() {
-        return userStorage.getUsers();
+        log.info("Get all users");
+        return userService.getUsers();
     }
 
     @PostMapping
     public User create(@Valid @RequestBody User user) {
-        if (validateUser(user) && validateEmailNotDuplicated(user)) {
-            user.setId(appointId());
-            users.put(user.getId(), user);
-            log.info("User has been added");
-        }
-        return user;
+        log.info("Add new user");
+        return userService.addUser(user);
     }
 
     @PutMapping
     public User put(@Valid @RequestBody User user) {
-        if (validateId(user) && validateUser(user)) {
-            users.put(user.getId(), user);
-            log.info("User has been updated");
-        }
-        return user;
+        log.info("Update user");
+        return userService.updateUser(user);
     }
 
-    private static boolean validateUser(User user) {
-        if (user.getLogin().contains(" ")) {
-            log.info("Whitespaces in login");
-            throw new ValidationException("Логин не может содержать пробелы.");
-        }
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Name is blank");
-            user.setName(user.getLogin());
-        }
-        if (user.getBirthday().isAfter(LocalDate.now())) {
-            log.info("BirthDate is incorrect");
-            throw new ValidationException("Указана неверная дата рождения.");
-        }
-        return true;
-    }
-
-    private boolean validateEmailNotDuplicated(User user) {
-        for (User u : users.values()) {
-            if (u.getEmail().equals(user.getEmail())) {
-                log.info("Duplicated email");
-                throw new ValidationException("Пользователь с электронной почтой " +
-                        user.getEmail() + " уже зарегистрирован.");
-            }
-        }
-        return true;
-    }
-
-    private boolean validateId(User user) {
-        if (user.getId() <= 0) {
-            log.info("ID wrong format");
-            throw new ValidationException("ID должен быть положительным.");
-        }
-        return true;
-    }
-
-    private boolean checkIdNotDuplicated(int id) {
-        if (users.containsKey(id)) {
-            log.info("Id exists");
-            throw new ValidationException("ID уже существует.");
-        }
-        log.info("ID has been checked");
-        return true;
-    }
-
-    private int appointId() {
-        ++id;
-        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
-            return id;
-        } else {
-            return appointId();
-        }
-    }
 }
