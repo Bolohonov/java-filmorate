@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
@@ -14,10 +15,12 @@ import java.util.Collection;
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
+    private final UserService userService;
 
     @Autowired
-    public FilmService (FilmStorage filmStorage) {
+    public FilmService (FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
+        this.userService = userService;
     }
 
     public Collection<Film> getFilms() {
@@ -40,8 +43,24 @@ public class FilmService {
         return film;
     }
 
-    public Film getFilmById(int id) {
+    public Film getFilmById(Integer id) {
         return filmStorage.getFilm(id);
+    }
+
+    public Film addLike(Integer filmId, Integer userId) {
+        if (userService.getUserById(userId) != null) {
+            filmStorage.getFilm(filmId).addLike(userId);
+            log.info("User " + userId + " likes film with ID " + filmId);
+        }
+        return filmStorage.getFilm(filmId);
+    }
+
+    public Film removeLike(Integer filmId, Integer userId) {
+        if (userService.getUserById(userId) != null) {
+            filmStorage.getFilm(filmId).addLike(userId);
+            log.info("User " + userId + " likes film with ID " + filmId);
+        }
+        return filmStorage.getFilm(filmId);
     }
 
     private boolean validateFilm(Film film) {

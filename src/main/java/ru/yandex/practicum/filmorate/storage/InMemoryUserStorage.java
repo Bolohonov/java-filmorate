@@ -42,7 +42,8 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(Integer id) {
-        return users.entrySet()
+        return users.
+                entrySet()
                 .stream()
                 .filter(u -> u.getKey().equals(id))
                 .findFirst()

@@ -33,8 +33,33 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public User findUser(@PathVariable("userId") Integer userId) {
-        log.info("Get film with ID " + userId);
+        log.info("Get user with ID " + userId);
         return userService.getUserById(userId);
+    }
+
+    @PutMapping("/{id}/friends/{friendId}")
+    public User addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        log.info("Add friend with ID " + friendId);
+        return userService.addToFriends(userService.getUserById(id), friendId);
+    }
+
+    @DeleteMapping("/{id}/friends/{friendId}")
+    public User removeFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+        log.info("Remove friend with ID " + friendId);
+        return userService.removeFriend(userService.getUserById(id), friendId);
+    }
+
+    @GetMapping("/{id}/friends/")
+    public Collection<Integer> getUserFriends(@PathVariable("id") Integer id) {
+        log.info("Get friends of user with ID " + id);
+        return userService.getUserFriends(id);
+    }
+
+    @GetMapping("/{id}/friends/common/{otherId}")
+    public Collection<Integer> getMatchingFriends(@PathVariable("id") Integer id,
+                                                  @PathVariable("otherId") Integer otherId) {
+        log.info("Get matching friends of user with ID " + id + " and " + otherId);
+        return userService.getMatchingFriends(id, otherId);
     }
 
     @PostMapping

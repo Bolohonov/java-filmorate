@@ -46,4 +46,16 @@ public class FilmController {
         return filmService.updateFilm(film);
     }
 
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.info("Add like to film with ID " + id);
+        return filmService.addLike(id, userId);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.info("Remove like from film with ID " + id);
+        return filmService.removeLike(id, userId);
+    }
+
 }

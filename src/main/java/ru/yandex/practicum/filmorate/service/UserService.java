@@ -3,12 +3,15 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Service
@@ -33,6 +36,7 @@ public class UserService {
     }
 
     public User getUserById(Integer userId) {
+        log.info("Get user with ID " + userId);
         return userStorage.getUser(userId);
     }
 
@@ -44,22 +48,34 @@ public class UserService {
         return user;
     }
 
-    public void addToFriends(User user, int id) {
-        try {
-            userStorage.getUser(id);
-            user.addFriend(id);
-        } catch (ValidationException e) {
-            e.getMessage();
-        }
+    public User addToFriends(User user, Integer friendId) {
+        User friend = userStorage.getUser(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(user.getId());
+        log.info("User with ID " + friendId + " and ID " + user.getId() + " is friends now");
+        return user;
     }
 
-    public void removeFriend(User user, int id) {
-        try {
-            userStorage.getUser(id);
-            user.removeFriend(id);
-        } catch (ValidationException e) {
-            e.getMessage();
-        }
+    public User removeFriend(User user, Integer friendId) {
+        User friend = userStorage.getUser(friendId);
+        user.removeFriend(friendId);
+        friend.removeFriend(user.getId());
+        log.info("User with ID " + friendId + " and ID " + user.getId() + " is NOT friends now");
+        return user;
+    }
+
+    public Collection<Integer> getUserFriends(Integer userId) {
+        log.info("User with ID " + userId + " get friends");
+        return userStorage.getUser(userId).getFriends();
+
+    }
+
+    public Collection<Integer> getMatchingFriends(Integer id, Integer otherId) {
+        log.info("User with ID " + id + " get matching friends with user " + otherId);
+        Set<Integer> intersection = new HashSet<>(userStorage.getUser(id).getFriends());
+        intersection.retainAll(userStorage.getUser(otherId).getFriends());
+        return intersection;
+
     }
 
     private static boolean validateUser(User user) {
