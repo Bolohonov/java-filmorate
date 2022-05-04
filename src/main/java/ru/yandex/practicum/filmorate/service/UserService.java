@@ -32,6 +32,10 @@ public class UserService {
         return user;
     }
 
+    public User getUserById(Integer userId) {
+        return userStorage.getUser(userId);
+    }
+
     public User updateUser(User user) {
         if (validateId(user) && validateUser(user)) {
             userStorage.updateUser(user);

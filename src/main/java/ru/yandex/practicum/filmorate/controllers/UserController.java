@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 
@@ -28,6 +29,12 @@ public class UserController {
     public Collection<User> findAll() {
         log.info("Get all users");
         return userService.getUsers();
+    }
+
+    @GetMapping("/{userId}")
+    public User findUser(@PathVariable("userId") Integer userId) {
+        log.info("Get film with ID " + userId);
+        return userService.getUserById(userId);
     }
 
     @PostMapping

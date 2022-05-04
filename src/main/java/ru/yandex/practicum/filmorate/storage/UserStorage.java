@@ -13,5 +13,5 @@ public interface UserStorage {
 
     void updateUser(User user);
 
-    User getUser(int id);
+    User getUser(Integer id);
 }

@@ -40,6 +40,10 @@ public class FilmService {
         return film;
     }
 
+    public Film getFilmById(int id) {
+        return filmStorage.getFilm(id);
+    }
+
     private boolean validateFilm(Film film) {
         if (film.getDescription().length() > 200) {
             log.info("Description is too long");
