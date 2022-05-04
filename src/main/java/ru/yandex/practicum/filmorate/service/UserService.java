@@ -40,8 +40,22 @@ public class UserService {
         return user;
     }
 
-    public void addToFriends(int id) {
+    public void addToFriends(User user, int id) {
+        try {
+            userStorage.getUser(id);
+            user.addFriend(id);
+        } catch (ValidationException e) {
+            e.getMessage();
+        }
+    }
 
+    public void removeFriend(User user, int id) {
+        try {
+            userStorage.getUser(id);
+            user.removeFriend(id);
+        } catch (ValidationException e) {
+            e.getMessage();
+        }
     }
 
     private static boolean validateUser(User user) {

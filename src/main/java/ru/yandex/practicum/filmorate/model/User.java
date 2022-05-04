@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -8,6 +9,7 @@ import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
+@Slf4j
 @Data
 public class User {
     private Set<Integer> friends;
@@ -22,4 +24,19 @@ public class User {
 
     private String name;
     private LocalDate birthday;
+
+    public void addFriend(int id) {
+        friends.add(id);
+        log.info("Friend with ID " + id + " has been added");
+    }
+
+    public Set<Integer> getFriends() {
+        log.info("Get all friends of " + this.login);
+        return friends;
+    }
+
+    public void removeFriend(int id) {
+        friends.remove(id);
+        log.info("Friend with ID " + id + "has been removed");
+    }
 }

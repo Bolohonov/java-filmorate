@@ -39,6 +39,16 @@ public class InMemoryUserStorage implements UserStorage {
         log.info("User has been updated in storage");
     }
 
+    @Override
+    public User getUser(int id) {
+        if (users.containsKey(id)) {
+            log.info("Get user with ID " + id);
+            return users.get(id);
+        } else {
+            throw new ValidationException("Пользователь с ID " + id + "не существует.");
+        }
+    }
+
     private boolean checkIdNotDuplicated(int id) {
         if (users.containsKey(id)) {
             log.info("Id exists");
