@@ -58,4 +58,12 @@ public class FilmController {
         return filmService.removeLike(id, userId);
     }
 
+    @GetMapping("/popular")
+    public Collection<Film> getFilmsByLikes(@RequestParam(value = "count", defaultValue = "10",
+            required = false) Integer count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException();
+        }
+        return filmService.getFilmsByLikes(count);
+    }
 }

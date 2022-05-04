@@ -9,7 +9,8 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -61,6 +62,16 @@ public class FilmService {
             log.info("User " + userId + " remove like from film with ID " + filmId);
         }
         return filmStorage.getFilm(filmId);
+    }
+
+    public Collection<Film> getFilmsByLikes(Integer count) {
+        List<Film> filmsByLikes = filmStorage.getFilms()
+                .stream()
+                .sorted(Comparator.comparingInt(Film::getSumOfLikes))
+                .limit(count)
+                .collect(Collectors.toList());
+        return filmsByLikes;
+
     }
 
     private boolean validateFilm(Film film) {

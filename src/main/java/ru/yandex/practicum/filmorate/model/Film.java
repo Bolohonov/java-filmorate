@@ -31,4 +31,8 @@ public class Film {
         likes.remove(userId);
         log.info("User with ID " + userId + " has been remove like from film with ID " + this.id);
     }
+
+    public int getSumOfLikes() {
+        return likes.size();
+    }
 }

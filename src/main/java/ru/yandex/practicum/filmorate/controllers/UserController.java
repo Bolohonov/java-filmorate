@@ -73,5 +73,4 @@ public class UserController {
         log.info("Update user");
         return userService.updateUser(user);
     }
-
 }
