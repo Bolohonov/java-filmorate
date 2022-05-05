@@ -1,14 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.validator.internal.util.logging.formatter.DurationFormatter;
 
 import javax.validation.constraints.NotBlank;
 import java.time.Duration;
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,6 +15,7 @@ import java.util.Set;
 public class Film {
     private Set<Integer> likes = new HashSet<>();
     private int id;
+    private int rate;
 
     @NotBlank(message = "name may not be null")
     private String name;
@@ -24,6 +23,7 @@ public class Film {
     @NotBlank(message = "name may not be null")
     private String description;
     private LocalDate releaseDate;
+    @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
 
     public void addLike(Integer userId) {
@@ -36,7 +36,7 @@ public class Film {
         log.info("User with ID " + userId + " has been remove like from film with ID " + this.id);
     }
 
-    public int getSumOfLikes() {
+    public int getRate() {
         return likes.size();
     }
 }

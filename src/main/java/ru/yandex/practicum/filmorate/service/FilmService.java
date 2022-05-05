@@ -69,7 +69,7 @@ public class FilmService {
     public Collection<Film> getFilmsByLikes(Integer count) {
         List<Film> filmsByLikes = filmStorage.getFilms()
                 .stream()
-                .sorted((o1, o2) -> o2.getSumOfLikes() - o1.getSumOfLikes())
+                .sorted((o1, o2) -> o2.getRate() - o1.getRate())
 //                .sorted(Comparator.comparing(f -> f.getSumOfLikes(),
 //                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .limit(count)
