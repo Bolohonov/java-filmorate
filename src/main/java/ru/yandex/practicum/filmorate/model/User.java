@@ -13,7 +13,7 @@ import java.util.Set;
 @Slf4j
 @Data
 public class User {
-    private Set<Integer> friends = new HashSet<>();
+    private final Set<Integer> friends = new HashSet<>();
     private int id;
 
     @Email

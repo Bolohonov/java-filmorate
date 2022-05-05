@@ -49,8 +49,8 @@ public class UserController {
         return userService.removeFriend(userService.getUserById(id), friendId);
     }
 
-    @GetMapping("/{id}/friends/")
-    public Collection<Integer> getUserFriends(@PathVariable("id") Integer id) {
+    @GetMapping("/{id}/friends")
+    public Collection<User> getUserFriends(@PathVariable("id") Integer id) {
         log.info("Get friends of user with ID " + id);
         return userService.getUserFriends(id);
     }

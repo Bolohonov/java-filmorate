@@ -44,12 +44,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public Film getFilm(Integer id) {
-        return films.entrySet()
-                .stream()
-                .filter(f -> f.getKey().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new FilmNotFoundException(String.format("Фильм № %d не найден", id)))
-                .getValue();
+        if (films.containsKey(id)) {
+            return films.get(id);
+        } else {
+            throw new FilmNotFoundException(String.format("Фильм № %d не найден", id));
+        }
     }
 
     private boolean checkIdNotDuplicated(int id) {

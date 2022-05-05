@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.filter.CommonsRequestLoggingFilter;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,6 +11,7 @@ import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,7 +69,9 @@ public class FilmService {
     public Collection<Film> getFilmsByLikes(Integer count) {
         List<Film> filmsByLikes = filmStorage.getFilms()
                 .stream()
-                .sorted(Comparator.comparingInt(Film::getSumOfLikes))
+                .sorted((o1, o2) -> o2.getSumOfLikes() - o1.getSumOfLikes())
+//                .sorted(Comparator.comparing(f -> f.getSumOfLikes(),
+//                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .limit(count)
                 .collect(Collectors.toList());
         return filmsByLikes;

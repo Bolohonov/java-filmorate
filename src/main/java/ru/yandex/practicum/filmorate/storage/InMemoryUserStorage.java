@@ -42,13 +42,11 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getUser(Integer id) {
-        return users.
-                entrySet()
-                .stream()
-                .filter(u -> u.getKey().equals(id))
-                .findFirst()
-                .orElseThrow(() -> new UserNotFoundException(String.format("Пользователь № %d не найден", id)))
-                .getValue();
+        if (users.containsKey(id)) {
+            return users.get(id);
+        } else {
+            throw new UserNotFoundException(String.format("Пользователь № %d не найден", id));
+        }
     }
 
     private boolean checkIdNotDuplicated(int id) {

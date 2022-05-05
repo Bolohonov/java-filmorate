@@ -9,9 +9,7 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -64,10 +62,13 @@ public class UserService {
         return user;
     }
 
-    public Collection<Integer> getUserFriends(Integer userId) {
+    public Collection<User> getUserFriends(Integer userId) {
         log.info("User with ID " + userId + " get friends");
-        return userStorage.getUser(userId).getFriends();
-
+        List<User> friends = new ArrayList<>();
+        for (Integer i : userStorage.getUser(userId).getFriends()) {
+            friends.add(userStorage.getUser(i));
+        }
+        return friends;
     }
 
     public Collection<Integer> getMatchingFriends(Integer id, Integer otherId) {
