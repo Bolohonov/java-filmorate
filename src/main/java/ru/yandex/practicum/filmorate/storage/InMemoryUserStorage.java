@@ -36,7 +36,7 @@ public class InMemoryUserStorage implements UserStorage {
             users.remove(userId);
             log.info("User with ID %d has been deleted", userId);
         } else {
-            throw new FilmNotFoundException(String.format("Фильм № %d не найден", userId));
+            throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
         }
     }
 
