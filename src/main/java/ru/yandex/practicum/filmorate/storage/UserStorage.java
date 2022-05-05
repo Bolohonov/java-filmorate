@@ -9,7 +9,7 @@ public interface UserStorage {
 
     User addUser(User user);
 
-    void deleteUser(User user);
+    void deleteUser(Integer id);
 
     void updateUser(User user);
 

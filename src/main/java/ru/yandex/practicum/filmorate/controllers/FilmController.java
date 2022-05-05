@@ -18,7 +18,7 @@ public class FilmController {
     private final FilmService filmService;
 
     @Autowired
-    public FilmController (FilmService filmService) {
+    public FilmController(FilmService filmService) {
         this.filmService = filmService;
     }
 
@@ -32,6 +32,12 @@ public class FilmController {
     public Film findFilm(@PathVariable("filmId") Integer filmId) {
         log.info("Get film with ID " + filmId);
         return filmService.getFilmById(filmId);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable("filmId") Integer filmId) {
+        filmService.deleteFilm(filmId);
+        log.info("Delete film with ID " + filmId);
     }
 
     @PostMapping

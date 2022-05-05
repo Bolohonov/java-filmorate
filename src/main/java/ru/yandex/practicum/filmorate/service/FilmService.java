@@ -21,7 +21,7 @@ public class FilmService {
     private final UserService userService;
 
     @Autowired
-    public FilmService (FilmStorage filmStorage, UserService userService) {
+    public FilmService(FilmStorage filmStorage, UserService userService) {
         this.filmStorage = filmStorage;
         this.userService = userService;
     }
@@ -44,6 +44,10 @@ public class FilmService {
             log.info("Film has been updated");
         }
         return film;
+    }
+
+    public void deleteFilm(Integer filmId) {
+        filmStorage.deleteFilm(filmId);
     }
 
     public Film getFilmById(Integer id) {
@@ -70,8 +74,6 @@ public class FilmService {
         List<Film> filmsByLikes = filmStorage.getFilms()
                 .stream()
                 .sorted((o1, o2) -> o2.getRate() - o1.getRate())
-//                .sorted(Comparator.comparing(f -> f.getSumOfLikes(),
-//                        Comparator.nullsLast(Comparator.naturalOrder())))
                 .limit(count)
                 .collect(Collectors.toList());
         return filmsByLikes;
@@ -101,5 +103,4 @@ public class FilmService {
         }
         return true;
     }
-
 }

@@ -11,7 +11,6 @@ import ru.yandex.practicum.filmorate.model.ErrorResponse;
 
 @RestControllerAdvice
 public class ErrorHandler {
-
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleValidationException(final ValidationException e) {

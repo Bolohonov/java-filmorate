@@ -3,10 +3,8 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -32,8 +30,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void deleteFilm(Film film) {
-        films.remove(film.getId());
+    public void deleteFilm(Integer filmId) {
+        if (films.containsKey(filmId)) {
+            films.remove(filmId);
+            log.info("Film with ID %d has been deleted", filmId);
+        } else {
+            throw new FilmNotFoundException(String.format("Фильм № %d не найден", filmId));
+        }
     }
 
     @Override

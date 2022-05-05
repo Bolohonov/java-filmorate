@@ -46,6 +46,10 @@ public class UserService {
         return user;
     }
 
+    public void deleteUser(Integer userId) {
+        userStorage.deleteUser(userId);
+    }
+
     public User addToFriends(User user, Integer friendId) {
         User friend = userStorage.getUser(friendId);
         user.addFriend(friendId);
