@@ -3,15 +3,12 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.filter.CommonsRequestLoggingFilter;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -19,6 +16,7 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
+    private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserService userService) {
@@ -57,7 +55,7 @@ public class FilmService {
     public Film addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId) != null) {
             filmStorage.getFilm(filmId).addLike(userId);
-            log.info("User " + userId + " likes film with ID " + filmId);
+            log.info("User %1$d likes film with ID %2$d", userId, filmId);
         }
         return filmStorage.getFilm(filmId);
     }
@@ -65,7 +63,7 @@ public class FilmService {
     public Film removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId) != null) {
             filmStorage.getFilm(filmId).removeLike(userId);
-            log.info("User " + userId + " remove like from film with ID " + filmId);
+            log.info("User %1$d remove like from film with ID %2$d", userId, filmId);
         }
         return filmStorage.getFilm(filmId);
     }
@@ -85,7 +83,7 @@ public class FilmService {
             log.info("Description is too long");
             throw new ValidationException("Описание слишком длинное.");
         }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
+        if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
             log.info("ReleaseDate isBefore 1985.12.28");
             throw new ValidationException("Указана неверная дата релиза.");
         }

@@ -34,7 +34,7 @@ public class UserService {
     }
 
     public User getUserById(Integer userId) {
-        log.info("Get user with ID " + userId);
+        log.info("Get user with ID %d", userId);
         return userStorage.getUser(userId);
     }
 
@@ -54,7 +54,7 @@ public class UserService {
         User friend = userStorage.getUser(friendId);
         user.addFriend(friendId);
         friend.addFriend(user.getId());
-        log.info("User with ID " + friendId + " and ID " + user.getId() + " is friends now");
+        log.info("User with ID %1$ and ID %2$ is friends now", friendId, user.getId());
         return user;
     }
 
@@ -62,12 +62,12 @@ public class UserService {
         User friend = userStorage.getUser(friendId);
         user.removeFriend(friendId);
         friend.removeFriend(user.getId());
-        log.info("User with ID " + friendId + " and ID " + user.getId() + " is NOT friends now");
+        log.info("User with ID %1$ and ID %2$ is NOT friends now", friendId, user.getId());
         return user;
     }
 
     public Collection<User> getUserFriends(Integer userId) {
-        log.info("User with ID " + userId + " get friends");
+        log.info("User with ID %d get friends", userId);
         List<User> friends = new ArrayList<>();
         for (Integer i : userStorage.getUser(userId).getFriends()) {
             friends.add(userStorage.getUser(i));
@@ -76,7 +76,7 @@ public class UserService {
     }
 
     public Collection<Integer> getMatchingFriends(Integer id, Integer otherId) {
-        log.info("User with ID " + id + " get matching friends with user " + otherId);
+        log.info("User with ID %1$ get matching friends with user %2$", id, otherId);
         Set<Integer> intersection = new HashSet<>(userStorage.getUser(id).getFriends());
         intersection.retainAll(userStorage.getUser(otherId).getFriends());
         return intersection;

@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.SerializationException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.ErrorResponse;
@@ -32,6 +33,14 @@ public class ErrorHandler {
     public ErrorResponse handleFilmNotFoundException(final FilmNotFoundException e) {
         return new ErrorResponse(
                 e.getMessage()
+        );
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleSerialization(final SerializationException e) {
+        return new ErrorResponse(
+                "Произошла ошибка сериализации объекта."
         );
     }
 

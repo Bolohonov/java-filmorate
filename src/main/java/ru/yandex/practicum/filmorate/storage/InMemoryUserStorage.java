@@ -56,20 +56,19 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private boolean checkIdNotDuplicated(int id) {
-        if (users.containsKey(id)) {
+        if (!users.containsKey(id)) {
+            log.info("ID has been checked");
+            return true;
+        } else {
             log.info("Id exists");
-            throw new ValidationException("ID уже существует.");
+            return false;
         }
-        log.info("ID has been checked");
-        return true;
     }
 
     private int appointId() {
-        ++id;
-        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
-            return id;
-        } else {
-            return appointId();
+        while (!this.checkIdNotDuplicated(id)) {
+            ++id;
         }
+        return id;
     }
 }
