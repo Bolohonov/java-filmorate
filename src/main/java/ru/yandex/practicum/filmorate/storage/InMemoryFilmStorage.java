@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private int id;
+    private int id = 0;
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
@@ -64,9 +64,6 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     private int appointId() {
-        if (id == 0) {
-            ++id;
-        }
         while (!this.checkIdNotDuplicated(id)) {
             ++id;
         }

@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryUserStorage implements UserStorage {
-    private int id;
+    private int id = 0;
     private final Map<Integer, User> users = new HashMap<>();
 
     @Override
@@ -64,9 +64,6 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     private int appointId() {
-        if (id == 0) {
-            ++id;
-        }
         while (!this.checkIdNotDuplicated(id)) {
             ++id;
         }
