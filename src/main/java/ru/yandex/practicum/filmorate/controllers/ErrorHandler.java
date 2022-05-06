@@ -40,7 +40,7 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleSerializationException(final SerializationException e) {
         return new ErrorResponse(
-                "Произошла ошибка сериализации объекта."
+                "Произошла ошибка сериализации объекта: " + e.getMessage()
         );
     }
 
