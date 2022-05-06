@@ -28,16 +28,16 @@ public class User {
 
     public void addFriend(int id) {
         friends.add(id);
-        log.info("Friend with ID " + id + " has been added");
+        log.warn("Friend with ID {} has been added", id);
     }
 
     public Set<Integer> getFriends() {
-        log.info("Get all friends of " + this.login);
+        log.warn("Get all friends of {}", this.login);
         return friends;
     }
 
     public void removeFriend(int id) {
         friends.remove(id);
-        log.info("Friend with ID " + id + "has been removed");
+        log.warn("Friend with ID {} has been removed", id);
     }
 }

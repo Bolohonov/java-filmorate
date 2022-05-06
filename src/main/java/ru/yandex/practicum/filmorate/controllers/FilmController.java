@@ -24,43 +24,43 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info("Get all films");
+        log.warn("Get all films");
         return filmService.getFilms();
     }
 
     @GetMapping("/{filmId}")
     public Film findFilm(@PathVariable("filmId") Integer filmId) {
-        log.info("Get film with ID " + filmId);
+        log.warn("Get film with ID {}", filmId);
         return filmService.getFilmById(filmId);
     }
 
     @DeleteMapping("/{filmId}")
     public void deleteFilm(@PathVariable("filmId") Integer filmId) {
         filmService.deleteFilm(filmId);
-        log.info("Delete film with ID " + filmId);
+        log.warn("Delete film with ID {}", filmId);
     }
 
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
-        log.info("Add new film");
+        log.warn("Add new film");
         return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        log.info("Update film");
+        log.warn("Update film");
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public Film addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
-        log.info("Add like to film with ID " + id);
+        log.warn("Add like to film with ID {}", id);
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Film removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
-        log.info("Remove like from film with ID " + id);
+        log.warn("Remove like from film with ID {}", id);
         return filmService.removeLike(id, userId);
     }
 
@@ -70,6 +70,7 @@ public class FilmController {
         if (count <= 0) {
             throw new IllegalArgumentException();
         }
+        log.warn("Get {} most popular films", count);
         return filmService.getFilmsByLikes(count);
     }
 }

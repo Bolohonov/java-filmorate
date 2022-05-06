@@ -28,12 +28,12 @@ public class Film {
 
     public void addLike(Integer userId) {
         likes.add(userId);
-        log.info("User with ID " + userId + " has been add like to film with ID " + this.id);
+        log.warn("User with ID {} has been add like to film with ID {}", userId, this.id);
     }
 
     public void removeLike(Integer userId) {
         likes.remove(userId);
-        log.info("User with ID " + userId + " has been remove like from film with ID " + this.id);
+        log.warn("User with ID {} has been remove like from film with ID {}", userId, this.id);
     }
 
     public int getRate() {

@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.Collection;
@@ -25,7 +24,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         film.setId(appointId());
         films.put(film.getId(), film);
-        log.info("Film has been added to storage");
+        log.warn("Film has been added to storage");
         return film;
     }
 
@@ -33,7 +32,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteFilm(Integer filmId) {
         if (films.containsKey(filmId)) {
             films.remove(filmId);
-            log.info("Film with ID %d has been deleted", filmId);
+            log.warn("Film with ID {} has been deleted", filmId);
         } else {
             throw new FilmNotFoundException(String.format("Фильм № %d не найден", filmId));
         }
@@ -42,7 +41,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public void updateFilm(Film film) {
         films.put(film.getId(), film);
-        log.info("Film has been updated in storage");
+        log.warn("Film has been updated in storage");
     }
 
     @Override
@@ -56,15 +55,18 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private boolean checkIdNotDuplicated(int id) {
         if (!films.containsKey(id)) {
-            log.info("ID has been checked");
+            log.warn("ID has been checked");
             return true;
         } else {
-            log.info("Id exists");
+            log.warn("Id exists");
             return false;
         }
     }
 
     private int appointId() {
+        if (id == 0) {
+            ++id;
+        }
         while (!this.checkIdNotDuplicated(id)) {
             ++id;
         }

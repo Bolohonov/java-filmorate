@@ -16,7 +16,8 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
-    private static final LocalDate FIRST_FILM_DATE = LocalDate.of(1895, 12, 28);
+    private static final LocalDate FIRST_FILM_DATE
+            = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(FilmStorage filmStorage, UserService userService) {
@@ -31,7 +32,7 @@ public class FilmService {
     public Film addFilm(Film film) {
         if (validateFilm(film)) {
             filmStorage.addFilm(film);
-            log.info("Film has been added");
+            log.warn("Film has been added");
         }
         return film;
     }
@@ -39,13 +40,14 @@ public class FilmService {
     public Film updateFilm(Film film) {
         if (validateId(film) && validateFilm(film)) {
             filmStorage.updateFilm(film);
-            log.info("Film has been updated");
+            log.warn("Film has been updated");
         }
         return film;
     }
 
     public void deleteFilm(Integer filmId) {
         filmStorage.deleteFilm(filmId);
+        log.warn("Film with ID {} has been deleted", filmId);
     }
 
     public Film getFilmById(Integer id) {
@@ -55,7 +57,7 @@ public class FilmService {
     public Film addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId) != null) {
             filmStorage.getFilm(filmId).addLike(userId);
-            log.info("User %1$d likes film with ID %2$d", userId, filmId);
+            log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilm(filmId);
     }
@@ -63,7 +65,7 @@ public class FilmService {
     public Film removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId) != null) {
             filmStorage.getFilm(filmId).removeLike(userId);
-            log.info("User %1$d remove like from film with ID %2$d", userId, filmId);
+            log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilm(filmId);
     }
@@ -75,20 +77,19 @@ public class FilmService {
                 .limit(count)
                 .collect(Collectors.toList());
         return filmsByLikes;
-
     }
 
     private boolean validateFilm(Film film) {
         if (film.getDescription().length() > 200) {
-            log.info("Description is too long");
+            log.warn("Description is too long");
             throw new ValidationException("Описание слишком длинное.");
         }
         if (film.getReleaseDate().isBefore(FIRST_FILM_DATE)) {
-            log.info("ReleaseDate isBefore 1985.12.28");
+            log.warn("ReleaseDate isBefore 1985.12.28");
             throw new ValidationException("Указана неверная дата релиза.");
         }
         if (film.getDuration().isNegative()) {
-            log.info("Duration is negative");
+            log.warn("Duration is negative");
             throw new ValidationException("Указана отрицательная продолжительность.");
         }
         return true;
@@ -96,7 +97,7 @@ public class FilmService {
 
     private boolean validateId(Film film) {
         if (film.getId() <= 0) {
-            log.info("ID wrong format");
+            log.warn("ID wrong format");
             throw new ValidationException("ID должен быть положительным.");
         }
         return true;

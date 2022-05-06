@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.Collection;
@@ -26,7 +24,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         user.setId(appointId());
         users.put(user.getId(), user);
-        log.info("User has been added to storage");
+        log.warn("User has been added to storage");
         return user;
     }
 
@@ -34,7 +32,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteUser(Integer userId) {
         if (users.containsKey(userId)) {
             users.remove(userId);
-            log.info("User with ID %d has been deleted", userId);
+            log.warn("User with ID {} has been deleted", userId);
         } else {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
         }
@@ -43,7 +41,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public void updateUser(User user) {
         users.put(user.getId(), user);
-        log.info("User has been updated in storage");
+        log.warn("User has been updated in storage");
     }
 
     @Override
@@ -57,15 +55,18 @@ public class InMemoryUserStorage implements UserStorage {
 
     private boolean checkIdNotDuplicated(int id) {
         if (!users.containsKey(id)) {
-            log.info("ID has been checked");
+            log.warn("ID has been checked");
             return true;
         } else {
-            log.info("Id exists");
+            log.warn("Id exists");
             return false;
         }
     }
 
     private int appointId() {
+        if (id == 0) {
+            ++id;
+        }
         while (!this.checkIdNotDuplicated(id)) {
             ++id;
         }

@@ -38,7 +38,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleSerialization(final SerializationException e) {
+    public ErrorResponse handleSerializationException(final SerializationException e) {
         return new ErrorResponse(
                 "Произошла ошибка сериализации объекта."
         );
