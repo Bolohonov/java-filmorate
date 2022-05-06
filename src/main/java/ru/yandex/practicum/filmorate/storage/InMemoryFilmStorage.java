@@ -12,7 +12,7 @@ import java.util.Map;
 @Slf4j
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
-    private int id = 0;
+    private int id = 1;
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
