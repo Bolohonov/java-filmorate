@@ -1,4 +1,4 @@
 # java-filmorate
 Template repository for Filmorate project.
 
-![QuickDBD-Filmorate.png] (/assets/images/QuickDBD-Filmorate.png)
+![QuickDBD-Filmorate.png] (src/main/assets/images/QuickDBD-Filmorate.png)
