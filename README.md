@@ -36,15 +36,15 @@ INSERT
 INTO Film (Name, Description, ReleaseDate, Duration, Genre_Id, Rate_Id)  
 VALUES ('Test', 'Test', '2022-01-01', 1000, 2, 1)  
   
-//addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId)   
-- добавить лайк фильму  
+//addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId)  
+добавить лайк фильму  
   
 INSERT  
 INTO Likes (User_Id, Film_Id)  
 VALUES (10, 3)  
   
-//removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId)   
-- удалить лайк фильму  
+//removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId)  
+удалить лайк фильму  
   
 DELETE  
 FROM Likes  
@@ -85,8 +85,8 @@ WHERE f.Rate_Id = rate_Id
   
 //Запросы на добавление, удаление, получение User аналогичны запросам для Film  
   
-//addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId)   
-- добавить пользователя в друзья  
+//addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId)  
+добавить пользователя в друзья  
   
 INSERT  
 INTO Friends (FirstUser_Id, SecondUser_Id, Accept)  
