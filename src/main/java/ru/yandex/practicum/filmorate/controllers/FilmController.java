@@ -1,88 +1,76 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
-import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Validated
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final Map<Integer, Film> films = new HashMap<>();
-    private int id;
+    private final FilmService filmService;
+
+    @Autowired
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-        return films.values();
+        log.warn("Get all films");
+        return filmService.getFilms();
+    }
+
+    @GetMapping("/{filmId}")
+    public Film findFilm(@PathVariable("filmId") Integer filmId) {
+        log.warn("Get film with ID {}", filmId);
+        return filmService.getFilmById(filmId);
+    }
+
+    @DeleteMapping("/{filmId}")
+    public void deleteFilm(@PathVariable("filmId") Integer filmId) {
+        filmService.deleteFilm(filmId);
+        log.warn("Delete film with ID {}", filmId);
     }
 
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
-        if (validateFilm(film)) {
-            film.setId(appointId());
-            films.put(film.getId(), film);
-            log.info("Film has been added");
-        }
-        return film;
+        log.warn("Add new film");
+        return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        if (validateId(film) && validateFilm(film)) {
-            films.put(film.getId(), film);
-            log.info("Film has been updated");
-        }
-        return film;
+        log.warn("Update film");
+        return filmService.updateFilm(film);
     }
 
-    private boolean validateFilm(Film film) {
-        if (film.getDescription().length() > 200) {
-            log.info("Description is too long");
-            throw new ValidationException("Описание слишком длинное.");
-        }
-        if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.info("ReleaseDate isBefore 1985.12.28");
-            throw new ValidationException("Указана неверная дата релиза.");
-        }
-        if (film.getDuration().isNegative()) {
-            log.info("Duration is negative");
-            throw new ValidationException("Указана отрицательная продолжительность.");
-        }
-        return true;
+    @PutMapping("/{id}/like/{userId}")
+    public Film addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.warn("Add like to film with ID {}", id);
+        return filmService.addLike(id, userId);
     }
 
-    private boolean validateId(Film film) {
-        if (film.getId() <= 0) {
-            log.info("ID wrong format");
-            throw new ValidationException("ID должен быть положительным.");
-        }
-        return true;
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
+        log.warn("Remove like from film with ID {}", id);
+        return filmService.removeLike(id, userId);
     }
 
-    private boolean checkIdNotDuplicated(int id) {
-        if (films.containsKey(id)) {
-            log.info("Id exists");
-            throw new ValidationException("ID уже существует.");
+    @GetMapping("/popular")
+    public Collection<Film> getFilmsByLikes(@RequestParam(value = "count", defaultValue = "10",
+            required = false) Integer count) {
+        if (count <= 0) {
+            throw new IllegalArgumentException();
         }
-        log.info("ID has been checked");
-        return true;
-    }
-
-    private int appointId() {
-        ++id;
-        if ((this.checkIdNotDuplicated(id)) && (id != 0)) {
-            return id;
-        } else {
-            return appointId();
-        }
+        log.warn("Get {} most popular films", count);
+        return filmService.getFilmsByLikes(count);
     }
 }
