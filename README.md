@@ -1,5 +1,5 @@
 # java-filmorate
-Template repository for Filmorate project.
+Filmorate project.
 
 ![](src/main/assets/images/DBD.png "Диаграмма БД")
 
