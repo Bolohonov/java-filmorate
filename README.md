@@ -1,5 +1,5 @@
 # java-filmorate
-Filmorate project sprint 10 HW.
+Filmorate project.
 
 ![](src/main/assets/images/DBD.png "Диаграмма БД")
 
