@@ -1,7 +1,7 @@
 # java-filmorate
 Filmorate project.
 
-![](src/main/assets/images/DBD.png "Диаграмма БД")
+![](DBD.png "Диаграмма БД")
 
 Связи между таблицами:  
 User - Likes One-To-Many  
