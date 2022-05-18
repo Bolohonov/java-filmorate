@@ -7,14 +7,15 @@ Filmorate project.
 User - Likes One-To-Many  
 Film - Likes One-To-Many  
 User - Friends Many-To-Many  
-Film - Film_genre Many-To-Many  
-Film_rate - Film One-To-Many
 
 Уникальная комбинация полей:  
 В таблице Friends комбинация полей (FirstUser_Id , SecondUser_Id) уникальная,   
 исключает повторы, пользователи считаются друзьями, если поле Accept = 'True'  
 в коде планируется делать проверку, чтобы первым (FirstUser_Id) шел id    
 с меньшим значением
+
+Поля Genre И Rate:
+имеют тип VARCHAR, при создании таблицы будут объявлена как ENUM
 
 Примеры запросов:  
 //findAll() - получение всех фильмов  
@@ -63,25 +64,6 @@ LIMIT 10
 SELECT *
 FROM Film AS f  
 WHERE f.Genre_Id = genre_Id
-
-//groupFilmsByGenre - получить группировку фильмов по жанрам  
-SELECT fg.Name,  
-COUNT(f.film_Id)  
-FROM Film AS f  
-LEFT JOIN Film_genre AS fg ON f.Genre_Id = fg.Genre_id  
-GROUP BY fg.Name
-
-//groupFilmsByRate - получить группировку фильмов по возрастному рейтингу  
-SELECT fr.Name,  
-COUNT(f.film_Id)  
-FROM Film AS f  
-LEFT JOIN Film_rate AS fr ON f.Rate_Id = fr.Rate_id  
-GROUP BY fr.Name
-
-//getFilmsByRate - получить фильмы определенного возрастного рейтинга rate_Id  
-SELECT *
-FROM Film AS f  
-WHERE f.Rate_Id = rate_Id
 
 //Запросы на добавление, удаление, получение User аналогичны запросам для Film
 
