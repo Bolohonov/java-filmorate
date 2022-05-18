@@ -38,7 +38,8 @@ public class UserService {
     }
 
     public User updateUser(User user) {
-        if (validateId(user) && validateUser(user)) {
+        if (validateUser(user)) {
+            userStorage.getUser(user.getId());
             userStorage.updateUser(user);
             log.warn("User has been updated");
         }
@@ -75,11 +76,15 @@ public class UserService {
         return friends;
     }
 
-    public Collection<Integer> getMatchingFriends(Integer id, Integer otherId) {
+    public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
         log.warn("User with ID {} get matching friends with user {}", id, otherId);
         Set<Integer> intersection = new HashSet<>(userStorage.getUser(id).getFriends());
         intersection.retainAll(userStorage.getUser(otherId).getFriends());
-        return intersection;
+        List<User> matchingFriends = new ArrayList<>();
+        for (Integer i : intersection) {
+            matchingFriends.add(userStorage.getUser(i));
+        }
+        return matchingFriends;
 
     }
 

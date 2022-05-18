@@ -59,7 +59,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/friends/common/{otherId}")
-    public Collection<Integer> getMatchingFriends(@PathVariable("id") Integer id,
+    public Collection<User> getMatchingFriends(@PathVariable("id") Integer id,
                                                   @PathVariable("otherId") Integer otherId) {
         log.warn("Get matching friends of user with ID {} and {}", id, otherId);
         return userService.getMatchingFriends(id, otherId);

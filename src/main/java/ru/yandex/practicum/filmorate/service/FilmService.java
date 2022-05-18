@@ -38,7 +38,8 @@ public class FilmService {
     }
 
     public Film updateFilm(Film film) {
-        if (validateId(film) && validateFilm(film)) {
+        if (validateFilm(film)) {
+            filmStorage.getFilm(film.getId());
             filmStorage.updateFilm(film);
             log.warn("Film has been updated");
         }
