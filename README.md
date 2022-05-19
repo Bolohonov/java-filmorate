@@ -6,7 +6,7 @@ Filmorate project.
 Связи между таблицами:  
 user - likes One-To-Many  
 film - likes One-To-Many  
-user - friends Many-To-Many  
+user - friends One-To-Many  
 film - film_genre One-To-Many
 
 Уникальная комбинация полей:  
