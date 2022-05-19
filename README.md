@@ -61,18 +61,6 @@ GROUP BY f.film_id
 ORDER BY likes_count DESC  
 LIMIT 10
 
-//getFilmsByGenre - получить фильмы определенного жанра genre_Id  
-SELECT *
-FROM film AS f  
-WHERE f.genre_id = genre_Id
-
-//groupFilmsByGenre - получить группировку фильмов по жанрам  
-SELECT fg.Name,  
-COUNT(f.film_id)  
-FROM Film AS f  
-LEFT JOIN film_genre AS fg ON f.genre_Id = fg.genre_id  
-GROUP BY fg.name
-
 //Запросы на добавление, удаление, получение User аналогичны запросам для Film
 
 //addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId)  
