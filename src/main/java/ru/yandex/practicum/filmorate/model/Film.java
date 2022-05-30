@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,8 +13,8 @@ import java.util.Set;
 
 @Slf4j
 @Data
+@Builder
 public class Film {
-    private Set<Integer> likes = new HashSet<>();
     private int id;
     private int rate;
 
@@ -26,17 +27,11 @@ public class Film {
     @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
 
-    public void addLike(Integer userId) {
-        likes.add(userId);
-        log.warn("User with ID {} has been add like to film with ID {}", userId, this.id);
+    public void increaseRate() {
+        ++rate;
     }
 
-    public void removeLike(Integer userId) {
-        likes.remove(userId);
-        log.warn("User with ID {} has been remove like from film with ID {}", userId, this.id);
-    }
-
-    public int getRate() {
-        return likes.size();
+    public void decreaseRate() {
+        --rate;
     }
 }

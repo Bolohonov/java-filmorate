@@ -40,9 +40,10 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public void updateUser(User user) {
+    public User updateUser(User user) {
         users.put(user.getId(), user);
         log.warn("User has been updated in storage");
+        return user;
     }
 
     @Override

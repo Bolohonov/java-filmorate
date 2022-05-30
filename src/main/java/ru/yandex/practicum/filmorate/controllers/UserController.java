@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.Optional;
 
 @Validated
 @RestController
@@ -29,7 +30,7 @@ public class UserController {
     }
 
     @GetMapping("/{userId}")
-    public User findUser(@PathVariable("userId") Integer userId) {
+    public Optional<User> findUser(@PathVariable("userId") Integer userId) {
         log.warn("Get user with ID {}", userId);
         return userService.getUserById(userId);
     }
@@ -41,15 +42,15 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public User addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+    public Optional<User> addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
         log.warn("Add friend with ID {}", friendId);
-        return userService.addToFriends(userService.getUserById(id), friendId);
+        return userService.addToFriends(id, friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public User removeFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+    public Optional<User> removeFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
         log.warn("Remove friend with ID {}", friendId);
-        return userService.removeFriend(userService.getUserById(id), friendId);
+        return userService.removeFriend(id, friendId);
     }
 
     @GetMapping("/{id}/friends")
@@ -72,7 +73,7 @@ public class UserController {
     }
 
     @PutMapping
-    public User put(@Valid @RequestBody User user) {
+    public Optional<User> put(@Valid @RequestBody User user) {
         log.warn("Update user");
         return userService.updateUser(user);
     }

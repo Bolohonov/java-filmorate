@@ -4,9 +4,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -17,13 +19,17 @@ import java.util.stream.Collectors;
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
+
+    private final LikesStorage likesStorage;
     private static final LocalDate FIRST_FILM_DATE
             = LocalDate.of(1895, 12, 28);
 
     @Autowired
-    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService) {
+    public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
+                       LikesStorage likesStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
+        this.likesStorage = likesStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -40,7 +46,7 @@ public class FilmService {
 
     public Film updateFilm(Film film) {
         if (validateFilm(film)) {
-            filmStorage.getFilm(film.getId());
+            filmStorage.getFilmById(film.getId());
             filmStorage.updateFilm(film);
             log.warn("Film has been updated");
         }
@@ -52,24 +58,34 @@ public class FilmService {
         log.warn("Film with ID {} has been deleted", filmId);
     }
 
-    public Film getFilmById(Integer id) {
-        return filmStorage.getFilm(id);
+    public Optional<Film> getFilmById(Integer id) {
+        if (!filmStorage.getFilmById(id).isPresent()) {
+            throw new UserNotFoundException("Фильм не найден");
+        }
+        log.warn("Get user with ID {}", id);
+        return filmStorage.getFilmById(id);
     }
 
-    public Film addLike(Integer filmId, Integer userId) {
-        if (userService.getUserById(userId) != null) {
-            filmStorage.getFilm(filmId).addLike(userId);
+    public Optional<Film> addLike(Integer userId, Integer filmId) {
+        if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
+            likesStorage.addLike(userId, filmId);
+            Film film = filmStorage.getFilmById(filmId).get();
+            film.increaseRate();
+            filmStorage.updateFilm(film);
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
-        return filmStorage.getFilm(filmId);
+        return filmStorage.getFilmById(filmId);
     }
 
-    public Film removeLike(Integer filmId, Integer userId) {
-        if (userService.getUserById(userId) != null) {
-            filmStorage.getFilm(filmId).removeLike(userId);
+    public Optional<Film> removeLike(Integer userId, Integer filmId) {
+        if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
+            likesStorage.removeLike(userId, filmId);
+            Film film = filmStorage.getFilmById(filmId).get();
+            film.decreaseRate();
+            filmStorage.updateFilm(film);
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
-        return filmStorage.getFilm(filmId);
+        return filmStorage.getFilmById(filmId);
     }
 
     public Collection<Film> getFilmsByLikes(Integer count) {
@@ -97,11 +113,11 @@ public class FilmService {
         return true;
     }
 
-    private boolean validateId(Film film) {
-        if (film.getId() <= 0) {
-            log.warn("ID wrong format");
-            throw new ValidationException("ID должен быть положительным.");
-        }
-        return true;
-    }
+//    private boolean validateId(Film film) {
+//        if (film.getId() <= 0) {
+//            log.warn("ID wrong format");
+//            throw new ValidationException("ID должен быть положительным.");
+//        }
+//        return true;
+//    }
 }

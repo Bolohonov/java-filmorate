@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -33,18 +34,21 @@ public class UserService {
         return user;
     }
 
-    public User getUserById(Integer userId) {
+    public Optional<User> getUserById(Integer userId) {
+        if (!userStorage.findUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
         log.warn("Get user with ID {}", userId);
         return userStorage.findUserById(userId);
     }
 
-    public User updateUser(User user) {
+    public Optional<User> updateUser(User user) {
         if (validateUser(user)) {
             userStorage.findUserById(user.getId());
             userStorage.updateUser(user);
             log.warn("User has been updated");
         }
-        return user;
+        return Optional.of(user);
     }
 
     public void deleteUser(Integer userId) {
@@ -53,7 +57,10 @@ public class UserService {
     }
 
     public User addToFriends(User user, Integer friendId) {
-        User friend = userStorage.findUserById(friendId);
+        if (!userStorage.findUserById(friendId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        User friend = userStorage.findUserById(friendId).get();
         user.addFriend(friendId);
         friend.addFriend(user.getId());
         log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
@@ -61,7 +68,7 @@ public class UserService {
     }
 
     public User removeFriend(User user, Integer friendId) {
-        User friend = userStorage.findUserById(friendId);
+        User friend = userStorage.findUserById(friendId).get();
         user.removeFriend(friendId);
         friend.removeFriend(user.getId());
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());

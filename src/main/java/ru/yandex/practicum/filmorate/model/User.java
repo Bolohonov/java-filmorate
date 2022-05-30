@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
+import lombok.Builder;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Slf4j
 @Data
+@Builder
 public class User {
     private final Set<Integer> friends = new HashSet<>();
     private int id;
