@@ -35,12 +35,12 @@ public class UserService {
 
     public User getUserById(Integer userId) {
         log.warn("Get user with ID {}", userId);
-        return userStorage.getUser(userId);
+        return userStorage.findUserById(userId);
     }
 
     public User updateUser(User user) {
         if (validateUser(user)) {
-            userStorage.getUser(user.getId());
+            userStorage.findUserById(user.getId());
             userStorage.updateUser(user);
             log.warn("User has been updated");
         }
@@ -53,7 +53,7 @@ public class UserService {
     }
 
     public User addToFriends(User user, Integer friendId) {
-        User friend = userStorage.getUser(friendId);
+        User friend = userStorage.findUserById(friendId);
         user.addFriend(friendId);
         friend.addFriend(user.getId());
         log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
@@ -61,7 +61,7 @@ public class UserService {
     }
 
     public User removeFriend(User user, Integer friendId) {
-        User friend = userStorage.getUser(friendId);
+        User friend = userStorage.findUserById(friendId);
         user.removeFriend(friendId);
         friend.removeFriend(user.getId());
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
@@ -71,19 +71,19 @@ public class UserService {
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);
         List<User> friends = new ArrayList<>();
-        for (Integer i : userStorage.getUser(userId).getFriends()) {
-            friends.add(userStorage.getUser(i));
+        for (Integer i : userStorage.findUserById(userId).getFriends()) {
+            friends.add(userStorage.findUserById(i));
         }
         return friends;
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
         log.warn("User with ID {} get matching friends with user {}", id, otherId);
-        Set<Integer> intersection = new HashSet<>(userStorage.getUser(id).getFriends());
-        intersection.retainAll(userStorage.getUser(otherId).getFriends());
+        Set<Integer> intersection = new HashSet<>(userStorage.findUserById(id).getFriends());
+        intersection.retainAll(userStorage.findUserById(otherId).getFriends());
         List<User> matchingFriends = new ArrayList<>();
         for (Integer i : intersection) {
-            matchingFriends.add(userStorage.getUser(i));
+            matchingFriends.add(userStorage.findUserById(i));
         }
         return matchingFriends;
 
