@@ -27,19 +27,4 @@ public class User {
 
     private String name;
     private LocalDate birthday;
-
-    public void addFriend(int id) {
-        friends.add(id);
-        log.warn("Friend with ID {} has been added", id);
-    }
-
-    public Set<Integer> getFriends() {
-        log.warn("Get all friends of {}", this.login);
-        return friends;
-    }
-
-    public void removeFriend(int id) {
-        friends.remove(id);
-        log.warn("Friend with ID {} has been removed", id);
-    }
 }

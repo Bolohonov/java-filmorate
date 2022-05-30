@@ -112,12 +112,4 @@ public class FilmService {
         }
         return true;
     }
-
-//    private boolean validateId(Film film) {
-//        if (film.getId() <= 0) {
-//            log.warn("ID wrong format");
-//            throw new ValidationException("ID должен быть положительным.");
-//        }
-//        return true;
-//    }
 }
