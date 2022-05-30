@@ -42,15 +42,15 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public Optional<User> addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+    public User addFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
         log.warn("Add friend with ID {}", friendId);
-        return userService.addToFriends(id, friendId);
+        return userService.addToFriends(userService.getUserById(id).get(), friendId);
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
-    public Optional<User> removeFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
+    public User removeFriend(@PathVariable("id") Integer id, @PathVariable("friendId") Integer friendId) {
         log.warn("Remove friend with ID {}", friendId);
-        return userService.removeFriend(id, friendId);
+        return userService.removeFriend(userService.getUserById(id).get(), friendId);
     }
 
     @GetMapping("/{id}/friends")

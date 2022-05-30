@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -16,10 +17,12 @@ import java.util.*;
 @Service
 public class UserService {
     private final UserStorage userStorage;
+    private final FriendsStorage friendsStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
         this.userStorage = userStorage;
+        this.friendsStorage = friendsStorage;
     }
 
     public Collection<User> getUsers() {
@@ -60,40 +63,29 @@ public class UserService {
         if (!userStorage.findUserById(friendId).isPresent()) {
             throw new UserNotFoundException("Пользователь не найден");
         }
-        User friend = userStorage.findUserById(friendId).get();
-        user.addFriend(friendId);
-        friend.addFriend(user.getId());
-        log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
+        friendsStorage.addToFriends(user.getId(), friendId);
+        if (friendsStorage.addToFriends(user.getId(), friendId)) {
+            log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
+        } else {
+            log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
+        }
         return user;
     }
 
     public User removeFriend(User user, Integer friendId) {
-        User friend = userStorage.findUserById(friendId).get();
-        user.removeFriend(friendId);
-        friend.removeFriend(user.getId());
+        friendsStorage.removeFriend(user.getId(), friendId);
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);
-        List<User> friends = new ArrayList<>();
-        for (Integer i : userStorage.findUserById(userId).getFriends()) {
-            friends.add(userStorage.findUserById(i));
-        }
-        return friends;
+        return friendsStorage.getUserFriends(userId);
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
         log.warn("User with ID {} get matching friends with user {}", id, otherId);
-        Set<Integer> intersection = new HashSet<>(userStorage.findUserById(id).getFriends());
-        intersection.retainAll(userStorage.findUserById(otherId).getFriends());
-        List<User> matchingFriends = new ArrayList<>();
-        for (Integer i : intersection) {
-            matchingFriends.add(userStorage.findUserById(i));
-        }
-        return matchingFriends;
-
+        return friendsStorage.getMatchingFriends(id, otherId);
     }
 
     private static boolean validateUser(User user) {
@@ -123,11 +115,11 @@ public class UserService {
         return true;
     }
 
-    private boolean validateId(User user) {
-        if (user.getId() <= 0) {
-            log.warn("ID wrong format");
-            throw new ValidationException("ID должен быть положительным.");
-        }
-        return true;
-    }
+//    private boolean validateId(User user) {
+//        if (user.getId() <= 0) {
+//            log.warn("ID wrong format");
+//            throw new ValidationException("ID должен быть положительным.");
+//        }
+//        return true;
+//    }
 }
