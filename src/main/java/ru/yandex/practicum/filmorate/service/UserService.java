@@ -114,12 +114,4 @@ public class UserService {
         }
         return true;
     }
-
-    private boolean validateId(User user) {
-        if (user.getId() <= 0) {
-            log.warn("ID wrong format");
-            throw new ValidationException("ID должен быть положительным.");
-        }
-        return true;
-    }
 }

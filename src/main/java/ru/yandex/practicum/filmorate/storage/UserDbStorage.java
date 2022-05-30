@@ -2,14 +2,16 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -32,11 +34,16 @@ public class UserDbStorage implements UserStorage {
     public User addUser(User user) {
         String sqlQuery = "insert into user_filmorate (name, login, email, birthday) " +
                 "values (?, ?, ?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                user.getName(),
-                user.getLogin(),
-                user.getEmail(),
-                user.getBirthday());
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(connection -> {
+            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+            stmt.setString(1, user.getName());
+            stmt.setString(2, user.getLogin());
+            stmt.setString(3, user.getEmail());
+            stmt.setDate(4, Date.valueOf(user.getBirthday()));
+            return stmt;
+        }, keyHolder);
+        user.setId(keyHolder.getKey().intValue());
         return user;
     }
 
