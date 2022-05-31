@@ -26,6 +26,7 @@ public class Film {
     private LocalDate releaseDate;
     @JsonSerialize(using = DurationSerializer.class)
     private Duration duration;
+    private Mpa mpa;
 
     public void increaseRate() {
         ++rate;
