@@ -88,16 +88,22 @@ public class FriendsDbStorage implements FriendsStorage {
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);
-        Collection<User> userFriends;
-        String sql = "select u.*" +
+        Collection<User> userFriendsFirst;
+        Collection<User> userFriendsSecond;
+        String sqlFirst = "select u.*" +
                 "from (select second_user_id " +
                 "from friends as fr " +
-                "where fr.first_user_id = ? and fr.accept_second = true " +
-                "union select first_user_id " +
-                "from friends as fr where fr.second_user_id = ? and fr.accept_first = true) as tab " +
-                "left join user_filmorate as u on u.id = tab.SECOND_USER_ID";
-        userFriends = jdbcTemplate.query(sql, this::mapRowToUser, userId);
-        return userFriends;
+                "where fr.first_user_id = ? and fr.accept_first = true) " +
+                "left join user_filmorate as u on u.id = second_user_id";
+        userFriendsFirst = jdbcTemplate.query(sqlFirst, this::mapRowToUser, userId);
+        String sqlSecond = "select u.*" +
+                "from (select first_user_id " +
+                "from friends as fr " +
+                "where fr.second_user_id = ? and fr.accept_second = true) " +
+                "left join user_filmorate as u on u.id = first_user_id";
+        userFriendsSecond = jdbcTemplate.query(sqlSecond, this::mapRowToUser, userId);
+        userFriendsFirst.addAll(userFriendsSecond);
+        return userFriendsFirst;
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {

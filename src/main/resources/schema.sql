@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS film (
 );
 
 CREATE TABLE IF NOT EXISTS friends (
-    first_user_id int PRIMARY KEY,
+    first_user_id int,
     second_user_id int,
     accept_first boolean,
     accept_second boolean
@@ -28,7 +28,7 @@ ALTER TABLE friends ADD CONSTRAINT IF NOT EXISTS friends_second_id_to_user FOREI
     REFERENCES user_filmorate;
 
 CREATE TABLE IF NOT EXISTS likes (
-     user_id int PRIMARY KEY,
+     user_id int,
      film_id int
 );
 
