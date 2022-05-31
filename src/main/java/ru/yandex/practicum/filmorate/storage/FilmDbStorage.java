@@ -27,13 +27,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getFilms() {
-        String sql = "select id, rate, name, description, releaseDate, duration from film";
+        String sql = "select id, rate, name, description, release_date, duration from film";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
     @Override
     public Film addFilm(Film film) {
-        String sqlQuery = "insert into film (rate, name, description, releaseDate, duration) " +
+        String sqlQuery = "insert into film (rate, name, description, release_date, duration) " +
                 "values (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
@@ -42,7 +42,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setString(2, film.getName());
             stmt.setString(3, film.getDescription());
             stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
-            stmt.setInt(4, Integer.valueOf((int) film.getDuration().toSeconds()));
+            stmt.setInt(5, Integer.valueOf((int) film.getDuration().toSeconds()));
             return stmt;
         }, keyHolder);
         return film;
@@ -56,7 +56,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film updateFilm(Film film) {
-        String sqlQuery = "update film set rate = ?, name = ?, description = ?, releaseDate = ? " +
+        String sqlQuery = "update film set rate = ?, name = ?, description = ?, release_date = ? " +
                 ", duration = ? where id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getRate(),
@@ -70,7 +70,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Optional<Film> getFilmById(Integer id) {
-        String sqlQuery = "select id, rate, name, description, releaseDate, duration " +
+        String sqlQuery = "select id, rate, name, description, release_date, duration " +
                 "from film where id = ?";
         Optional<Film> film;
         try {
