@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import javax.servlet.ServletOutputStream;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -28,6 +29,7 @@ public class MpaDbStorage implements MpaStorage {
     @Override
     public Mpa getNewMpaObject(Integer id) {
         if (id >0 && id <= this.getNumberOfMpa()) {
+            log.warn("Создание нового объекта mpa");
             return new Mpa(id);
         } else {
             throw new MpaNotFoundException("Такого mpa_id не существует");
