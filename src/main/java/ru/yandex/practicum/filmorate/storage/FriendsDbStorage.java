@@ -27,12 +27,14 @@ public class FriendsDbStorage implements FriendsStorage {
             secondUserId = idLarge;
             flag = "FirstIsSecond";
         }
-        String sqlQuery = "insert into friends (first_user_id, second_user_id, accept_first, accept_second) " +
+        String sqlInsert = "insert into friends (first_user_id, second_user_id, accept_first, accept_second) " +
                 "values (?, ?, ?, ?)";
+        String sqlUpdate = "update friends set first_user_id = ?, second_user_id = ?, " +
+                "accept_first = ?, accept_second = ?";
         switch (flag) {
             case ("FirstIsFirst"):
                 if (!isRequestToFriendExist(firstUserId, secondUserId)) {
-                    jdbcTemplate.update(sqlQuery,
+                    jdbcTemplate.update(sqlInsert,
                             firstUserId,
                             secondUserId,
                             Boolean.TRUE,
@@ -40,9 +42,7 @@ public class FriendsDbStorage implements FriendsStorage {
                     return false;
                 } else {
                     if (isAcceptTrueSecondUser(firstUserId, secondUserId)) {
-                        String sql = "update friends set first_user_id = ?, second_user_id = ?, " +
-                                "accept_first = ?, accept_second = ?";
-                        jdbcTemplate.update(sql,
+                        jdbcTemplate.update(sqlUpdate,
                                 firstUserId,
                                 secondUserId,
                                 Boolean.TRUE,
@@ -53,7 +53,7 @@ public class FriendsDbStorage implements FriendsStorage {
                 break;
             case ("FirstIsSecond"):
                 if (!isRequestToFriendExist(firstUserId, secondUserId)) {
-                    jdbcTemplate.update(sqlQuery,
+                    jdbcTemplate.update(sqlInsert,
                             firstUserId,
                             secondUserId,
                             Boolean.FALSE,
@@ -61,9 +61,7 @@ public class FriendsDbStorage implements FriendsStorage {
                     return false;
                 } else {
                     if (isAcceptTrueFirstUser(firstUserId, secondUserId)) {
-                        String sql = "update friends set first_user_id = ?, second_user_id = ?, " +
-                                "accept_first = ?, accept_second = ?";
-                        jdbcTemplate.update(sql,
+                        jdbcTemplate.update(sqlUpdate,
                                 firstUserId,
                                 secondUserId,
                                 Boolean.TRUE,
@@ -90,6 +88,7 @@ public class FriendsDbStorage implements FriendsStorage {
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);
+        Collection<User> userFriends;
         String sql = "select u.*" +
                 "from (select second_user_id " +
                 "from friends as fr " +
@@ -97,7 +96,8 @@ public class FriendsDbStorage implements FriendsStorage {
                 "union select first_user_id " +
                 "from friends as fr where fr.second_user_id = ? and fr.accept_first = true) as tab " +
                 "left join user_filmorate as u on u.id = tab.SECOND_USER_ID";
-        return jdbcTemplate.query(sql, this::mapRowToUser, userId);
+        userFriends = jdbcTemplate.query(sql, this::mapRowToUser, userId);
+        return userFriends;
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
