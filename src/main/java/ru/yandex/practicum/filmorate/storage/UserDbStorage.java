@@ -5,6 +5,7 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.sql.Date;
@@ -60,7 +61,8 @@ public class UserDbStorage implements UserStorage {
                 user.getName(),
                 user.getLogin(),
                 user.getEmail(),
-                user.getBirthday());
+                user.getBirthday(),
+                user.getId());
         return user;
     }
 
@@ -68,7 +70,14 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> findUserById(Integer id) {
         String sqlQuery = "select id, name, login, email, birthday " +
                 "from user_filmorate where id = ?";
-        return Optional.of(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id));
+        Optional<User> user;
+        try {
+            user = Optional.of(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id));
+        } catch (Exception exp) {
+            log.warn("Пользователь с id {} не найден", id);
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        return user;
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

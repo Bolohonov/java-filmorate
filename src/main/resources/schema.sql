@@ -18,7 +18,8 @@ CREATE TABLE IF NOT EXISTS film (
 CREATE TABLE IF NOT EXISTS friends (
     first_user_id int PRIMARY KEY,
     second_user_id int,
-    accept boolean
+    accept_first boolean,
+    accept_second boolean
 );
 
 ALTER TABLE friends ADD CONSTRAINT IF NOT EXISTS friends_id_to_user FOREIGN KEY (first_user_id)

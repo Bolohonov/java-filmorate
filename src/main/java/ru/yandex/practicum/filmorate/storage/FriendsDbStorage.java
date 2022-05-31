@@ -19,27 +19,59 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     public boolean addToFriends(Integer firstUserId, Integer secondUserId) {
-        boolean result = false;
+        Boolean result = false;
+        String flag = "FirstIsFirst";
         if (firstUserId > secondUserId) {
             Integer idLarge = firstUserId;
             firstUserId = secondUserId;
             secondUserId = idLarge;
+            flag = "FirstIsSecond";
         }
-        String sqlQuery = "insert into friends (first_user_id, second_user_id, accept) " +
-                "values (?, ?, ?)";
-        if (!isRequestToFriendExist(firstUserId, secondUserId)) {
-            jdbcTemplate.update(sqlQuery,
-                    firstUserId,
-                    secondUserId,
-                    false);
-        } else {
-            if (!isAcceptTrue(firstUserId, secondUserId)) {
-                jdbcTemplate.update(sqlQuery,
-                        firstUserId,
-                        secondUserId,
-                        true);
-                result = true;
-            }
+        String sqlQuery = "insert into friends (first_user_id, second_user_id, accept_first, accept_second) " +
+                "values (?, ?, ?, ?)";
+        switch (flag) {
+            case ("FirstIsFirst"):
+                if (!isRequestToFriendExist(firstUserId, secondUserId)) {
+                    jdbcTemplate.update(sqlQuery,
+                            firstUserId,
+                            secondUserId,
+                            Boolean.TRUE,
+                            Boolean.FALSE);
+                    return false;
+                } else {
+                    if (isAcceptTrueSecondUser(firstUserId, secondUserId)) {
+                        String sql = "update friends set first_user_id = ?, second_user_id = ?, " +
+                                "accept_first = ?, accept_second = ?";
+                        jdbcTemplate.update(sql,
+                                firstUserId,
+                                secondUserId,
+                                Boolean.TRUE,
+                                Boolean.TRUE);
+                        result = true;
+                    }
+                }
+                break;
+            case ("FirstIsSecond"):
+                if (!isRequestToFriendExist(firstUserId, secondUserId)) {
+                    jdbcTemplate.update(sqlQuery,
+                            firstUserId,
+                            secondUserId,
+                            Boolean.FALSE,
+                            Boolean.TRUE);
+                    return false;
+                } else {
+                    if (isAcceptTrueFirstUser(firstUserId, secondUserId)) {
+                        String sql = "update friends set first_user_id = ?, second_user_id = ?, " +
+                                "accept_first = ?, accept_second = ?";
+                        jdbcTemplate.update(sql,
+                                firstUserId,
+                                secondUserId,
+                                Boolean.TRUE,
+                                Boolean.TRUE);
+                        result = true;
+                    }
+                }
+                break;
         }
         return result;
     };
@@ -58,20 +90,13 @@ public class FriendsDbStorage implements FriendsStorage {
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);
-        List<User> friends = new ArrayList<>();
         String sql = "select u.*" +
-                "from (select first_user_id " +
-                "from (select * " +
+                "from (select second_user_id " +
                 "from friends as fr " +
-                "where (fr.first_user_id = ? or fr.second_user_id = ?) and fr.accept = true) as tab " +
-                "where second_user_id = ? " +
-                "union " +
-                "select second_user_id " +
-                "from (select * " +
-                "from friends " +
-                "where (first_user_id = ? or second_user_id = ?) and accept = true) as tab " +
-                "where first_user_id = ?) as user_friends " +
-                "left join user_filmorate as u on u.id = user_friends.first_user_id";
+                "where fr.first_user_id = ? and fr.accept_second = true " +
+                "union select first_user_id " +
+                "from friends as fr where fr.second_user_id = ? and fr.accept_first = true) as tab " +
+                "left join user_filmorate as u on u.id = tab.SECOND_USER_ID";
         return jdbcTemplate.query(sql, this::mapRowToUser, userId);
     }
 
@@ -86,14 +111,37 @@ public class FriendsDbStorage implements FriendsStorage {
                 .collect(Collectors.toSet());
     }
 
-    private boolean isAcceptTrue(Integer firstUserId, Integer secondUserId) {
-        String sqlQuery = "select accept from friends where first_user_id = ? and second_user_id = ?";
-        return Boolean.TRUE.equals(jdbcTemplate.queryForObject(sqlQuery, Boolean.class, firstUserId, secondUserId));
+    private boolean isAcceptTrueFirstUser(Integer firstUserId, Integer secondUserId) {
+        String sqlQuery = "select accept_first from friends where first_user_id = ? and second_user_id = ?";
+        boolean result = false;
+        try {
+            result = jdbcTemplate.queryForObject(sqlQuery, Boolean.class, firstUserId, secondUserId);
+        } catch (Exception exp) {
+            log.warn(exp.getMessage());
+        }
+        return result;
+    }
+
+    private boolean isAcceptTrueSecondUser(Integer firstUserId, Integer secondUserId) {
+        String sqlQuery = "select accept_second from friends where first_user_id = ? and second_user_id = ?";
+        boolean result = false;
+        try {
+            result = jdbcTemplate.queryForObject(sqlQuery, Boolean.class, firstUserId, secondUserId);
+        } catch (Exception exp) {
+            log.warn(exp.getMessage());
+        }
+        return result;
     }
 
     private boolean isRequestToFriendExist(Integer firstUserId, Integer secondUserId) {
         String sqlQuery = "select first_user_id from friends where first_user_id = ? and second_user_id = ?";
-        return firstUserId.equals(jdbcTemplate.queryForObject(sqlQuery, Integer.class, firstUserId, secondUserId));
+        int count = 0;
+        try {
+            count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, firstUserId, secondUserId);
+        } catch (Exception exp) {
+            log.warn(exp.getMessage());
+        }
+        return count > 0;
     }
 
     private User mapRowToUser(ResultSet resultSet, int rowNum) throws SQLException {

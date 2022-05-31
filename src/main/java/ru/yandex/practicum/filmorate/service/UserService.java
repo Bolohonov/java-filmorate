@@ -46,8 +46,8 @@ public class UserService {
     }
 
     public Optional<User> updateUser(User user) {
+        this.getUserById(user.getId());
         if (validateUser(user)) {
-            userStorage.findUserById(user.getId());
             userStorage.updateUser(user);
             log.warn("User has been updated");
         }
@@ -63,7 +63,6 @@ public class UserService {
         if (!userStorage.findUserById(friendId).isPresent()) {
             throw new UserNotFoundException("Пользователь не найден");
         }
-        friendsStorage.addToFriends(user.getId(), friendId);
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
             log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
