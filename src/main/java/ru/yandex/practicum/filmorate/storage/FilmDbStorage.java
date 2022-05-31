@@ -2,14 +2,11 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Mpa;
 
-import java.sql.Date;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
@@ -20,9 +17,11 @@ import java.util.Optional;
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
+    private final MpaDbStorage mpaDbStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.mpaDbStorage = mpaDbStorage;
     }
 
     @Override
@@ -33,18 +32,31 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Film addFilm(Film film) {
-        String sqlQuery = "insert into film (rate, name, description, release_date, duration) " +
-                "values (?, ?, ?, ?, ?)";
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(connection -> {
-            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
-            stmt.setInt(1, film.getRate());
-            stmt.setString(2, film.getName());
-            stmt.setString(3, film.getDescription());
-            stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
-            stmt.setInt(5, Integer.valueOf((int) film.getDuration().toSeconds()));
-            return stmt;
-        }, keyHolder);
+        String sql = "select id, rate, name, description, release_date, duration from film where id = ?";
+        Film film2 = jdbcTemplate.queryForObject(sql, this::mapRowToFilm, 1);
+        System.out.println(film2);
+        String sqlQuery = "insert into film (rate, name, description, release_date, duration, mpa) " +
+                "values (?, ?, ?, ?, ?, ?)";
+//        KeyHolder keyHolder = new GeneratedKeyHolder();
+//        jdbcTemplate.update(connection -> {
+//            PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+//            stmt.setInt(1, film.getRate());
+//            stmt.setString(2, film.getName());
+//            stmt.setString(3, film.getDescription());
+//            stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
+//            stmt.setInt(5, Integer.valueOf((int) film.getDuration().toSeconds()));
+//            stmt.setObject(6, film.getMpa());
+//            return stmt;
+//        }, keyHolder);
+
+        jdbcTemplate.update(sqlQuery,
+                film.getRate(),
+                film.getName(),
+                film.getDescription(),
+                film.getReleaseDate(),
+                film.getDuration(),
+                film.getMpa(),
+                film.getId());
         return film;
     }
 
@@ -57,27 +69,28 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         String sqlQuery = "update film set rate = ?, name = ?, description = ?, release_date = ? " +
-                ", duration = ? where id = ?";
+                ", duration = ?, mpa = ? where id = ?";
         jdbcTemplate.update(sqlQuery,
                 film.getRate(),
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
                 film.getDuration(),
+                film.getMpa(),
                 film.getId());
         return film;
     }
 
     @Override
     public Optional<Film> getFilmById(Integer id) {
-        String sqlQuery = "select id, rate, name, description, release_date, duration " +
+        String sqlQuery = "select id, rate, name, description, release_date, duration, mpa " +
                 "from film where id = ?";
         Optional<Film> film;
         try {
             film = Optional.of(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToFilm, id));
         } catch (Exception exp) {
             log.warn("Фильм с id {} не найден", id);
-            throw new FilmNotFoundException("Фильм не найден");
+            throw new FilmNotFoundException(exp.getMessage());
         }
         return film;
     }
@@ -88,8 +101,9 @@ public class FilmDbStorage implements FilmStorage {
                 .rate(resultSet.getInt("rate"))
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
-                .releaseDate(resultSet.getDate("releaseDate").toLocalDate())
+                .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(resultSet.getObject("duration", Duration.class))
+                .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
     }
 }

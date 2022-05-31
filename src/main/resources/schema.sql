@@ -12,7 +12,8 @@ CREATE TABLE IF NOT EXISTS film (
   description varchar(150) NOT NULL,
   release_date date,
   duration int,
-  rate int
+  rate int,
+  mpa varchar(50)
 );
 
 CREATE TABLE IF NOT EXISTS friends (
