@@ -7,8 +7,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.MpaDeSerializer;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -22,16 +20,16 @@ import java.util.Optional;
 @Component("filmDbStorage")
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
-    private final MpaDbStorage mpaDbStorage;
+    private final MpaStorage mpaDbStorage;
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaDbStorage mpaDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
     }
 
     @Override
     public Collection<Film> getFilms() {
-        String sql = "select id, rate, name, description, release_date, duration from film";
+        String sql = "select id, rate, name, description, release_date, duration, mpa from film";
         return jdbcTemplate.query(sql, this::mapRowToFilm);
     }
 
@@ -50,6 +48,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setInt(6, film.getMpa().getId());
             return stmt;
         }, keyHolder);
+        film.setId(keyHolder.getKey().intValue());
         return film;
     }
 
@@ -68,8 +67,8 @@ public class FilmDbStorage implements FilmStorage {
                 film.getName(),
                 film.getDescription(),
                 film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa(),
+                film.getDuration().toSeconds(),
+                film.getMpa().getId(),
                 film.getId());
         return film;
     }
@@ -95,7 +94,7 @@ public class FilmDbStorage implements FilmStorage {
                 .name(resultSet.getString("name"))
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
-                .duration(resultSet.getObject("duration", Duration.class))
+                .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
     }

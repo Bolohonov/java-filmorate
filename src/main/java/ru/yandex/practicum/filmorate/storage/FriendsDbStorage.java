@@ -14,8 +14,11 @@ import java.util.stream.Collectors;
 @Component
 public class FriendsDbStorage implements FriendsStorage {
     private final JdbcTemplate jdbcTemplate;
-    public FriendsDbStorage(JdbcTemplate jdbcTemplate) {
+
+    private final UserStorage userDbStorage;
+    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
+        this.userDbStorage = userDbStorage;
     }
 
     public boolean addToFriends(Integer firstUserId, Integer secondUserId) {
