@@ -23,12 +23,12 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public void addLike(Integer filmId, Integer userId) {
-        if (!this.isLLikeExist(userId, filmId)) {
-            String sqlQuery = "insert into likes (user_id, film_id) " +
+        if (!this.isLLikeExist(filmId, userId)) {
+            String sqlQuery = "insert into likes (film_id, user_id) " +
                     "values (?, ?)";
             jdbcTemplate.update(sqlQuery,
-                    userId,
-                    filmId);
+                    filmId,
+                    userId);
         } else {
             log.warn("Пользователь с id {} уже поставил лайк фильму с id", userId, filmId);
         }
@@ -36,8 +36,8 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public void removeLike(Integer filmId, Integer userId) {
-        String sqlQuery = "delete from likes where user_id = ? AND film_id = ?";
-        jdbcTemplate.update(sqlQuery, userId, filmId);
+        String sqlQuery = "delete from likes where film_id = ? AND user_id = ?";
+        jdbcTemplate.update(sqlQuery, filmId, userId);
     }
 
     @Override
@@ -54,10 +54,10 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     private boolean isLLikeExist(Integer filmId, Integer userId) {
-        String sqlQuery = "select user_id from likes where user_id = ? and film_id = ?";
+        String sqlQuery = "select user_id from likes where film_id = ? and user_id = ?";
         int count = 0;
         try {
-            count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId, filmId);
+            count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, filmId, userId);
         } catch (Exception exp) {
             log.warn(exp.getMessage());
         }
