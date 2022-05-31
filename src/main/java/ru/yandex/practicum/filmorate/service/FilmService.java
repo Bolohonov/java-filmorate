@@ -68,7 +68,7 @@ public class FilmService {
 
     public Optional<Film> addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
-            likesStorage.addLike(userId, filmId);
+            likesStorage.addLike(filmId, userId);
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
@@ -76,7 +76,7 @@ public class FilmService {
 
     public Optional<Film> removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
-            likesStorage.removeLike(userId, filmId);
+            likesStorage.removeLike(filmId, userId);
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
