@@ -66,32 +66,23 @@ public class FilmService {
         return filmStorage.getFilmById(id);
     }
 
-    public Optional<Film> addLike(Integer userId, Integer filmId) {
+    public Optional<Film> addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.addLike(userId, filmId);
-            //Film film = filmStorage.getFilmById(filmId).get();
-            //filmStorage.updateFilm(film);
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
     }
 
-    public Optional<Film> removeLike(Integer userId, Integer filmId) {
+    public Optional<Film> removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.removeLike(userId, filmId);
-            //Film film = filmStorage.getFilmById(filmId).get();
-            //filmStorage.updateFilm(film);
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
     }
 
     public Collection<Film> getFilmsByLikes(Integer count) {
-//        List<Film> filmsByLikes = filmStorage.getFilms()
-//                .stream()
-//                .sorted((o1, o2) -> o2.getRate() - o1.getRate())
-//                .limit(count)
-//                .collect(Collectors.toList());
         return likesStorage.getFilmsByLikes(count);
     }
 

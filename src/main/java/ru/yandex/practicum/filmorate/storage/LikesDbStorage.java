@@ -22,31 +22,46 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public void addLike(Integer userId, Integer filmId) {
-        String sqlQuery = "insert into likes (user_id, film_id) " +
-                "values (?, ?)";
-        jdbcTemplate.update(sqlQuery,
-                userId,
-                filmId);
+    public void addLike(Integer filmId, Integer userId) {
+        if (!this.isLLikeExist(userId, filmId)) {
+            String sqlQuery = "insert into likes (user_id, film_id) " +
+                    "values (?, ?)";
+            jdbcTemplate.update(sqlQuery,
+                    userId,
+                    filmId);
+        } else {
+            log.warn("Пользователь с id {} уже поставил лайк фильму с id", userId, filmId);
+        }
     }
 
     @Override
-    public void removeLike(Integer userId, Integer filmId) {
+    public void removeLike(Integer filmId, Integer userId) {
         String sqlQuery = "delete from likes where user_id = ? AND film_id = ?";
         jdbcTemplate.update(sqlQuery, userId, filmId);
     }
 
     @Override
     public Collection<Film> getFilmsByLikes(Integer count) {
-        Collection<Film> filmsByLikes;
-        String sql = "select *, count(l.user_id) as likes_count " +
+        String sql = "select id, rate, name, description, release_date, duration, mpa " +
+                "from " +
+                "(select *, count(l.user_id) as likes_count " +
                 "from film as f " +
                 "left join likes as l on f.id = l.film_id " +
                 "group by f.id " +
                 "order by likes_count desc " +
-                "limit ?";
-        filmsByLikes = jdbcTemplate.query(sql, this::mapRowToFilm, count);
-        return null;
+                "limit ?)";
+        return jdbcTemplate.query(sql, this::mapRowToFilm, count);
+    }
+
+    private boolean isLLikeExist(Integer filmId, Integer userId) {
+        String sqlQuery = "select user_id from likes where user_id = ? and film_id = ?";
+        int count = 0;
+        try {
+            count = jdbcTemplate.queryForObject(sqlQuery, Integer.class, userId, filmId);
+        } catch (Exception exp) {
+            log.warn(exp.getMessage());
+        }
+        return count > 0;
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
