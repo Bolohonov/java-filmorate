@@ -5,5 +5,5 @@ import ru.yandex.practicum.filmorate.model.Mpa;
 public interface MpaStorage {
     Mpa getMpaById(Integer id);
 
-    Mpa getNewMpaObject(Integer id);
+    Mpa getNewMpaObject(Integer mpaId);
 }

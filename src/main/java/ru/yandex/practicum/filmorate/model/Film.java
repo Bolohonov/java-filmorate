@@ -29,12 +29,4 @@ public class Film {
     private Duration duration;
     @JsonDeserialize(using = MpaDeSerializer.class)
     private Mpa mpa;
-
-    public void increaseRate() {
-        ++rate;
-    }
-
-    public void decreaseRate() {
-        --rate;
-    }
 }

@@ -27,10 +27,10 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getNewMpaObject(Integer id) {
-        if (id >0 && id <= this.getNumberOfMpa()) {
+    public Mpa getNewMpaObject(Integer mpaId) {
+        if (mpaId >0 && mpaId <= this.getNumberOfMpa()) {
             log.warn("Создание нового объекта mpa");
-            return new Mpa(id);
+            return new Mpa(mpaId);
         } else {
             throw new MpaNotFoundException("Такого mpa_id не существует");
         }

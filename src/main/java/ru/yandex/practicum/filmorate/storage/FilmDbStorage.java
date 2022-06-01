@@ -49,6 +49,7 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         film.setId(keyHolder.getKey().intValue());
+        this.addFilmMpa(film.getId(), film.getMpa().getId());
         return film;
     }
 
@@ -56,6 +57,7 @@ public class FilmDbStorage implements FilmStorage {
     public void deleteFilm(Integer id) {
         String sqlQuery = "delete from film where id = ?";
         jdbcTemplate.update(sqlQuery, id);
+        this.deleteFilmMpa(id);
     }
 
     @Override
@@ -70,6 +72,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration().toSeconds(),
                 film.getMpa().getId(),
                 film.getId());
+        this.updateFilmMpa(film.getId(), film.getMpa().getId());
         return film;
     }
 
@@ -97,5 +100,26 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
+    }
+
+    private void addFilmMpa(Integer filmId, Integer mpaId) {
+        String sqlQuery = "insert into film_mpa (film_id, mpa_id) " +
+                "values (?, ?)";
+        jdbcTemplate.update(sqlQuery,
+                filmId,
+                mpaId);
+    }
+
+    private void updateFilmMpa(Integer filmId, Integer mpaId) {
+        String sqlQuery = "update film_mpa set mpa_id = ? where film_id = ?";
+        jdbcTemplate.update(sqlQuery,
+                mpaId,
+                filmId);
+    }
+
+    private void deleteFilmMpa(Integer filmId) {
+        String sqlQuery = "delete from film_mpa where film_id = ? ";
+        jdbcTemplate.update(sqlQuery,
+                filmId);
     }
 }
