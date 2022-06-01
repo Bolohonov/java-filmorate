@@ -35,7 +35,6 @@ class FriendsDbStorageTest {
     @Test
     void getUserFriends() {
         Collection<User> userFriends = friendsDbStorage.getUserFriends(20);
-        friendsDbStorage.getUserFriends(50).forEach(System.out::println);
         assertThat(userFriends).contains(
                 userDbStorage.findUserById(30).get(),
                 userDbStorage.findUserById(40).get(),
