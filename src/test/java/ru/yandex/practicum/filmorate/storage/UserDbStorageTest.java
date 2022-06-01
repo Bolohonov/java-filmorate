@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +32,10 @@ class UserDbStorageTest {
 
     @Test
     void getUsers() {
+        Collection<User> users = userDbStorage.getUsers();
+        assertThat(users).contains(userDbStorage.findUserById(1).get(), userDbStorage.findUserById(2).get(),
+                userDbStorage.findUserById(3).get(), userDbStorage.findUserById(4).get(),
+                userDbStorage.findUserById(5).get());
     }
 
     @Test
