@@ -49,9 +49,9 @@ class UserDbStorageTest {
                 .email("Test6@yandex.ru")
                 .login("Test6Login")
                 .name("Test6Name")
-                .birthday(LocalDate.of(2010,11,5))
+                .birthday(LocalDate.of(2010, 11, 5))
                 .build();
-            userDbStorage.addUser(newUser);
+        userDbStorage.addUser(newUser);
         assertThat(userDbStorage.findUserById(1))
                 .isPresent()
                 .isEqualTo(Optional.of(newUser));

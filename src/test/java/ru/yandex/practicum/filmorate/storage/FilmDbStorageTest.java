@@ -41,7 +41,7 @@ class FilmDbStorageTest {
                 .mpa(mpaDbStorage.getNewMpaObject(3))
                 .rate(5)
                 .name("Test")
-                .releaseDate(LocalDate.of(2010,11,11))
+                .releaseDate(LocalDate.of(2010, 11, 11))
                 .duration(Duration.ofSeconds(500))
                 .build();
         filmDbStorage.addFilm(newFilm);
