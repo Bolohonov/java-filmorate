@@ -15,11 +15,8 @@ import java.util.stream.Collectors;
 public class FriendsDbStorage implements FriendsStorage {
     private final JdbcTemplate jdbcTemplate;
 
-    private final UserStorage userDbStorage;
-
-    public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserStorage userDbStorage) {
+    public FriendsDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
-        this.userDbStorage = userDbStorage;
     }
 
     public boolean addToFriends(Integer firstUserId, Integer secondUserId) {
