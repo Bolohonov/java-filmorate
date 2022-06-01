@@ -16,6 +16,7 @@ public class FriendsDbStorage implements FriendsStorage {
     private final JdbcTemplate jdbcTemplate;
 
     private final UserStorage userDbStorage;
+
     public FriendsDbStorage(JdbcTemplate jdbcTemplate, UserStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.userDbStorage = userDbStorage;
@@ -75,7 +76,9 @@ public class FriendsDbStorage implements FriendsStorage {
                 break;
         }
         return result;
-    };
+    }
+
+    ;
 
     public void removeFriend(Integer firstUserId, Integer secondUserId) {
         if (firstUserId > secondUserId) {
@@ -87,7 +90,9 @@ public class FriendsDbStorage implements FriendsStorage {
         jdbcTemplate.update(sqlQuery,
                 firstUserId,
                 secondUserId);
-    };
+    }
+
+    ;
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);

@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import com.fasterxml.jackson.core.JacksonException;
-import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
 
 import java.io.IOException;
