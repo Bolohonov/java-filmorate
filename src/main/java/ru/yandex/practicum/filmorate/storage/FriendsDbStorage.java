@@ -78,18 +78,49 @@ public class FriendsDbStorage implements FriendsStorage {
     ;
 
     public void removeFriend(Integer firstUserId, Integer secondUserId) {
+        String flag = "FirstIsFirst";
         if (firstUserId > secondUserId) {
             Integer idLarge = firstUserId;
             firstUserId = secondUserId;
             secondUserId = idLarge;
+            flag = "FirstIsSecond";
         }
-        String sqlQuery = "delete from friends where first_user_id = ? and second_user_id =?";
-        jdbcTemplate.update(sqlQuery,
-                firstUserId,
-                secondUserId);
+        String sqlQueryToDelete = "delete from friends where first_user_id = ? and second_user_id =?";
+        String sqlUpdate = "update friends set first_user_id = ?, second_user_id = ?, " +
+                "accept_first = ?, accept_second = ?";
+        switch (flag) {
+            case ("FirstIsFirst"):
+                if (isRequestToFriendExist(firstUserId, secondUserId)) {
+                    if (isAcceptTrueSecondUser(firstUserId, secondUserId)) {
+                        jdbcTemplate.update(sqlUpdate,
+                                firstUserId,
+                                secondUserId,
+                                Boolean.FALSE,
+                                Boolean.TRUE);
+                    } else {
+                        jdbcTemplate.update(sqlQueryToDelete,
+                                firstUserId,
+                                secondUserId);
+                    }
+                }
+                break;
+            case ("FirstIsSecond"):
+                if (isRequestToFriendExist(firstUserId, secondUserId)) {
+                    if (isAcceptTrueFirstUser(firstUserId, secondUserId)) {
+                        jdbcTemplate.update(sqlUpdate,
+                                firstUserId,
+                                secondUserId,
+                                Boolean.TRUE,
+                                Boolean.FALSE);
+                    } else {
+                        jdbcTemplate.update(sqlQueryToDelete,
+                                firstUserId,
+                                secondUserId);
+                    }
+                }
+                break;
+        }
     }
-
-    ;
 
     public Collection<User> getUserFriends(Integer userId) {
         log.warn("User with ID {} get friends", userId);

@@ -47,7 +47,7 @@ public class LikesDbStorage implements LikesStorage {
                 "(select *, count(l.user_id) as likes_count " +
                 "from film as f " +
                 "left join likes as l on f.id = l.film_id " +
-                "group by f.id " +
+                "group by f.id, l.user_id " +
                 "order by likes_count desc " +
                 "limit ?)";
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
