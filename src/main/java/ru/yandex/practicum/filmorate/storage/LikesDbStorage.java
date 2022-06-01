@@ -42,14 +42,14 @@ public class LikesDbStorage implements LikesStorage {
 
     @Override
     public Collection<Film> getFilmsByLikes(Integer count) {
-        String sql = "select id, rate, name, description, release_date, duration, mpa " +
-                "from " +
-                "(select *, count(l.user_id) as likes_count " +
-                "from film as f " +
-                "left join likes as l on f.id = l.film_id " +
-                "group by f.id, l.user_id " +
-                "order by likes_count desc " +
-                "limit ?)";
+        String sql =
+        "select * from film " +
+        "LEFT JOIN " +
+        "(SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+        "FROM film AS f " +
+        "LEFT JOIN Likes AS l ON f.id = l.film_id " +
+        "GROUP BY f.id) as LC oN FILM.ID = LC.ID " +
+         "GROUP BY film.id order by likes_COUNT desc limit ?";
         return jdbcTemplate.query(sql, this::mapRowToFilm, count);
     }
 

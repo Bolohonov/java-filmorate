@@ -14,7 +14,6 @@ import java.time.LocalDate;
 @Slf4j
 @Data
 @Builder
-@AllArgsConstructor
 public class Film {
     private int id;
     private int rate;

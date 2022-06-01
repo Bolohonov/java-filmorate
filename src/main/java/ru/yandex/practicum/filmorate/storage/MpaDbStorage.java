@@ -19,13 +19,6 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     @Override
-    public Mpa getMpaById(Integer id) {
-        String sqlQuery = "select id " +
-                "from mpa where id = ?";
-        return jdbcTemplate.queryForObject(sqlQuery, this::mapRowToMpa, id);
-    }
-
-    @Override
     public Mpa getNewMpaObject(Integer mpaId) {
         if (mpaId > 0 && mpaId <= this.getNumberOfMpa()) {
             log.warn("Создание нового объекта mpa");

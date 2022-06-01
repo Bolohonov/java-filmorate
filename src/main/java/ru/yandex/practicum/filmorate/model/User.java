@@ -15,7 +15,6 @@ import java.util.Set;
 @Slf4j
 @Data
 @Builder
-@AllArgsConstructor
 public class User {
     private final Set<Integer> friends = new HashSet<>();
     private int id;
