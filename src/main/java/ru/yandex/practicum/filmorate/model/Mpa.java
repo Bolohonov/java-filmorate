@@ -7,8 +7,10 @@ import lombok.Data;
 @JsonDeserialize(using = MpaDeSerializer.class)
 public class Mpa {
     private int id;
+    private String title;
 
-    public Mpa(int id) {
+    public Mpa(int id, String title) {
         this.id = id;
+        this.title = title;
     }
 }

@@ -14,6 +14,7 @@ import java.sql.SQLException;
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
     private static final String SQL_SELECT_COUNT_ID = "select count(id) from mpa ";
+    private static final String SQL_SELECT_MPA_BY_ID = "select title from mpa where id = ?";
 
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -23,7 +24,8 @@ public class MpaDbStorage implements MpaStorage {
     public Mpa getNewMpaObject(Integer mpaId) {
         if (mpaId > 0 && mpaId <= this.getNumberOfMpa()) {
             log.warn("Создание нового объекта mpa");
-            return new Mpa(mpaId);
+            String title = jdbcTemplate.queryForObject(SQL_SELECT_MPA_BY_ID, String.class, mpaId);
+            return new Mpa(mpaId, title);
         } else {
             throw new MpaNotFoundException("Такого mpa_id не существует");
         }
@@ -31,11 +33,5 @@ public class MpaDbStorage implements MpaStorage {
 
     private int getNumberOfMpa() {
         return jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ID, Integer.class);
-    }
-
-    private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {
-        Mpa mpa = null;
-        mpa.setId(resultSet.getInt("id"));
-        return mpa;
     }
 }
