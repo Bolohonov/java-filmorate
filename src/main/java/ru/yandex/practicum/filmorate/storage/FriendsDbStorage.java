@@ -149,7 +149,7 @@ public class FriendsDbStorage implements FriendsStorage {
         Collection<User> userFriendsSecond;
         String sqlFirst = SQL_FIRST_QUERY_FOR_USER_FRIENDS;
         userFriendsFirst = jdbcTemplate.query(sqlFirst, this::mapRowToUser, userId);
-        String sqlSecond = SQL_FIRST_QUERY_FOR_USER_FRIENDS;
+        String sqlSecond = SQL_SECOND_QUERY_FOR_USER_FRIENDS;
         userFriendsSecond = jdbcTemplate.query(sqlSecond, this::mapRowToUser, userId);
         userFriendsFirst.addAll(userFriendsSecond);
         return userFriendsFirst;
