@@ -27,6 +27,13 @@ public class UserDbStorage implements UserStorage {
     private static final String SQL_INSERT =
             "insert into user_filmorate (name, login, email, birthday) " +
             "values (?, ?, ?, ?)";
+    private static final String SQL_DELETE =
+            "delete from user_filmorate where id = ?";
+    private static final String SQL_UPDATE =
+            "update user_filmorate set name = ?, login = ?, email = ?, birthday = ? where id = ?";
+    private static final String SQL_SELECT_FIND_USER =
+            "select id, name, login, email, birthday " +
+                    "from user_filmorate where id = ?";
 
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
@@ -40,10 +47,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public User addUser(User user) {
-            String sqlQuery = SQL_INSERT;
-            KeyHolder keyHolder = new GeneratedKeyHolder();
+        KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
-                PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+                PreparedStatement stmt = connection.prepareStatement(SQL_INSERT, new String[]{"id"});
                 stmt.setString(1, user.getName());
                 stmt.setString(2, user.getLogin());
                 stmt.setString(3, user.getEmail());
@@ -56,14 +62,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public void deleteUser(Integer id) {
-        String sqlQuery = "delete from user_filmorate where id = ?";
-        jdbcTemplate.update(sqlQuery, id);
+        jdbcTemplate.update(SQL_DELETE, id);
     }
 
     @Override
     public User updateUser(User user) {
-        String sqlQuery = "update user_filmorate set name = ?, login = ?, email = ?, birthday = ? where id = ?";
-        jdbcTemplate.update(sqlQuery,
+        jdbcTemplate.update(SQL_UPDATE,
                 user.getName(),
                 user.getLogin(),
                 user.getEmail(),
@@ -74,11 +78,9 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Optional<User> findUserById(Integer id) {
-        String sqlQuery = "select id, name, login, email, birthday " +
-                "from user_filmorate where id = ?";
         Optional<User> user;
         try {
-            user = Optional.of(jdbcTemplate.queryForObject(sqlQuery, this::mapRowToUser, id));
+            user = Optional.of(jdbcTemplate.queryForObject(SQL_SELECT_FIND_USER, this::mapRowToUser, id));
         } catch (Exception exp) {
             log.warn("Пользователь с id {} не найден", id);
             throw new UserNotFoundException(exp.getMessage());
