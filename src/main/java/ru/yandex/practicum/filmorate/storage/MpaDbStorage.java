@@ -13,6 +13,7 @@ import java.sql.SQLException;
 @Component
 public class MpaDbStorage implements MpaStorage {
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_SELECT_COUNT_ID = "select count(id) from mpa ";
 
     public MpaDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -29,9 +30,7 @@ public class MpaDbStorage implements MpaStorage {
     }
 
     private int getNumberOfMpa() {
-        String sqlQuery = "select count(id) " +
-                "from mpa ";
-        return jdbcTemplate.queryForObject(sqlQuery, Integer.class);
+        return jdbcTemplate.queryForObject(SQL_SELECT_COUNT_ID, Integer.class);
     }
 
     private Mpa mapRowToMpa(ResultSet resultSet, int rowNum) throws SQLException {

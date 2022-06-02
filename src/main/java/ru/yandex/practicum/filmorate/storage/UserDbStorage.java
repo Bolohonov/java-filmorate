@@ -15,12 +15,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
 @Component("userDbStorage")
 public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
+    private static final String SQL_SELECT =
+            "select id, name, login, email, birthday from user_filmorate";
+    private static final String SQL_INSERT =
+            "insert into user_filmorate (name, login, email, birthday) " +
+            "values (?, ?, ?, ?)";
+
 
     public UserDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -28,14 +35,12 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public Collection<User> getUsers() {
-        String sql = "select id, name, login, email, birthday from user_filmorate";
-        return jdbcTemplate.query(sql, this::mapRowToUser);
+        return jdbcTemplate.query(SQL_SELECT, this::mapRowToUser);
     }
 
     @Override
     public User addUser(User user) {
-            String sqlQuery = "insert into user_filmorate (name, login, email, birthday) " +
-                    "values (?, ?, ?, ?)";
+            String sqlQuery = SQL_INSERT;
             KeyHolder keyHolder = new GeneratedKeyHolder();
             jdbcTemplate.update(connection -> {
                 PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
@@ -45,7 +50,7 @@ public class UserDbStorage implements UserStorage {
                 stmt.setDate(4, Date.valueOf(user.getBirthday()));
                 return stmt;
             }, keyHolder);
-            user.setId(keyHolder.getKey().intValue());
+            user.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
         return user;
     }
 
