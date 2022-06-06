@@ -35,14 +35,6 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_SELECT_WITH_ID =
             "select id, rate, name, description, release_date, duration, mpa " +
                     "from film where id = ?";
-    private static final String SQL_INSERT_MPA =
-            "insert into film_mpa (film_id, mpa_id) " +
-                    "values (?, ?)";
-    private static final String SQL_UPDATE_MPA =
-            "update film_mpa set mpa_id = ? where film_id = ?";
-    private static final String SQL_DELETE_MPA =
-            "delete from film_mpa where film_id = ? ";
-
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -68,14 +60,12 @@ public class FilmDbStorage implements FilmStorage {
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-        this.addFilmMpa(film.getId(), film.getMpa().getId());
         return film;
     }
 
     @Override
     public void deleteFilm(Integer id) {
         jdbcTemplate.update(SQL_DELETE, id);
-        this.deleteFilmMpa(id);
     }
 
     @Override
@@ -88,7 +78,6 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration().toSeconds(),
                 film.getMpa().getId(),
                 film.getId());
-        this.updateFilmMpa(film.getId(), film.getMpa().getId());
         return film;
     }
 
@@ -115,22 +104,5 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
-    }
-
-    private void addFilmMpa(Integer filmId, Integer mpaId) {
-        jdbcTemplate.update(SQL_INSERT_MPA,
-                filmId,
-                mpaId);
-    }
-
-    private void updateFilmMpa(Integer filmId, Integer mpaId) {
-        jdbcTemplate.update(SQL_UPDATE_MPA,
-                mpaId,
-                filmId);
-    }
-
-    private void deleteFilmMpa(Integer filmId) {
-        jdbcTemplate.update(SQL_DELETE_MPA,
-                filmId);
     }
 }
