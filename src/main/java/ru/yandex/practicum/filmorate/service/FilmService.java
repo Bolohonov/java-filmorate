@@ -85,6 +85,10 @@ public class FilmService {
         return likesStorage.getFilmsByLikes(count);
     }
 
+    public Collection<Film> getFilmsThatUserLikes(Integer userId) {
+        return likesStorage.getFilmsThatUserLikes(userId);
+    }
+
     private boolean validateFilm(Film film) {
         if (film.getDescription().length() > 200) {
             log.warn("Description is too long");
