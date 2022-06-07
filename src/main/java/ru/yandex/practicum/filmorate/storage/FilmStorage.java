@@ -15,4 +15,7 @@ public interface FilmStorage {
     Film updateFilm(Film film);
 
     Optional<Film> getFilmById(Integer id);
+
+    Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId);
+
 }
