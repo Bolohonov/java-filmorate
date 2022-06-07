@@ -43,14 +43,6 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ErrorResponse handleMatchingLikesNotFoundException(final MatchingLikesNotFoundException e) {
-        return new ErrorResponse(
-                e.getMessage()
-        );
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleRecommendationNotFoundException(final RecommendationNotFoundException e) {
         return new ErrorResponse(
                 e.getMessage()
@@ -61,7 +53,8 @@ public class ErrorHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleThrowable(final Throwable e) {
         return new ErrorResponse(
-                "Произошла непредвиденная ошибка."
+                //"Произошла непредвиденная ошибка."
+                e.getMessage()
         );
     }
 }

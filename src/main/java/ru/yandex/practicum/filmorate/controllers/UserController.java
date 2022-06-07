@@ -80,8 +80,8 @@ public class UserController {
         return userService.updateUser(user);
     }
 
-    @PutMapping("/{userId}/recommendations")
-    public Collection<Film> getRecommendations(@PathVariable("firstUserId") Integer userId) {
+    @GetMapping("/{userId}/recommendations")
+    public Collection<Film> getRecommendations(@PathVariable("userId") Integer userId) {
         log.warn("Add recommendations to user ID {}", userId);
         return userService.getRecommendations(userId);
     }

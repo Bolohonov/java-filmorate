@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exceptions.MatchingLikesNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.RecommendationNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
@@ -20,7 +19,6 @@ public class LikesDbStorage implements LikesStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
     private final UserDbStorage userDbStorage;
-    private static final int USERS_MATCHING_LIKES_MAX = 2;
     private static final String SQL_INSERT =
             "insert into likes (film_id, user_id) " +
                     "values (?, ?)";
@@ -36,8 +34,9 @@ public class LikesDbStorage implements LikesStorage {
                     "GROUP BY film.id order by likes_COUNT desc limit ?";
 
     private static final String SQL_SELECT_FILMS_THAT_USER_LIKES =
-            "select * from film " +
-                    "LEFT JOIN likes AS l ON l.user_id = ?";
+            "select * from film RIGHT JOIN " +
+                    "(SELECT l.film_id FROM likes AS l where l.user_id = ?) as LC ON FILM.ID = LC.film_id " +
+                    "GROUP BY film.id";
     private static final String SQL_SELECT =
             "select user_id from likes where film_id = ? and user_id = ?";
 
@@ -70,52 +69,59 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsThatUserLikes(Integer userId) {
-        return jdbcTemplate.query(SQL_SELECT_FILMS_THAT_USER_LIKES, this::mapRowToFilm, userId);
-    }
-
-    @Override
     public Collection<Film> getRecommendations(Integer userId) {
-        HashMap<User, Collection<Film>> mapMatchingLikes = this.getUsersMatchingLikes(userId);
-        Collection<Film> filmsToRecommend = null;
+        Map<User, Collection<Film>> mapMatchingLikes = this.getUsersMatchingLikes(userId);
+        int count = mapMatchingLikes.size();
+        Collection<Film> filmsToRecommend = new ArrayList<>();
         for (Map.Entry e : mapMatchingLikes.entrySet()) {
             User user = (User) e.getKey();
             Collection<Film> filmsUserLikes = this.getFilmsThatUserLikes(user.getId());
             Collection<Film> filmsMatchingLikes = (Collection<Film>) e.getValue();
             filmsToRecommend.addAll(filmsUserLikes.stream()
                     .filter(film -> !filmsMatchingLikes.contains(film)).collect(Collectors.toSet()));
-        }
-        if (filmsToRecommend.isEmpty()) {
-            throw new RecommendationNotFoundException("Пока мы не можем вам ничего рекомендовать");
+            --count;
+            if (!filmsToRecommend.isEmpty()) {
+                return filmsToRecommend;
+            }
+            if (count == 0 && filmsToRecommend.isEmpty()) {
+                throw new RecommendationNotFoundException("Пока мы не можем вам ничего рекомендовать");
+            }
         }
         return filmsToRecommend;
     }
 
-    private HashMap<User, Collection<Film>> getUsersMatchingLikes(Integer userId) {
+    private Collection<Film> getFilmsThatUserLikes(Integer userId) {
+        return jdbcTemplate.query(SQL_SELECT_FILMS_THAT_USER_LIKES, this::mapRowToFilm, userId);
+    }
+
+    private Map<User, Collection<Film>> getUsersMatchingLikes(Integer userId) {
         Collection<Film> firstUserLikes = this.getFilmsThatUserLikes(userId);
         Collection<User> users = this.userDbStorage.getUsers();
-        HashMap<User, Collection<Film>> usersMatchingLikes = null;
-        users.remove(userDbStorage.findUserById(userId));
+        users.remove(userDbStorage.findUserById(userId).get());
+        Map<User, Collection<Film>> usersMatchingLikes = new HashMap<>();
         for (User u : users) {
-            Collection<Film> likes;
-            likes = firstUserLikes
+            if (u.getId() != userId) {
+                Collection<Film> likesMatch;
+                likesMatch = firstUserLikes
                         .stream()
-                        .distinct()
                         .filter(this.getFilmsThatUserLikes(u.getId())::contains)
                         .collect(Collectors.toSet());
-            usersMatchingLikes.put(u, likes);
+                if (likesMatch.size() != 0) {
+                    usersMatchingLikes.put(u, likesMatch);
+                }
+            }
         }
         if (usersMatchingLikes.isEmpty()) {
-            throw new MatchingLikesNotFoundException("Пользователи с похожими интересами не найдены");
+            throw new RecommendationNotFoundException("Пользователи с похожими интересами не найдены");
         }
-        return usersMatchingLikes.entrySet()
-                        .stream()
-                        .sorted(Comparator.comparingInt(o -> o.getValue().size()))
-                        .limit(USERS_MATCHING_LIKES_MAX)
-                        .collect(Collectors.toMap(
-                                                Map.Entry::getKey,
-                                                Map.Entry::getValue,
-                                                (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        return usersMatchingLikes
+                .entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue((o1, o2) -> o2.size() - o1.size()))
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
     }
 
     private boolean isLLikeExist(Integer filmId, Integer userId) {
