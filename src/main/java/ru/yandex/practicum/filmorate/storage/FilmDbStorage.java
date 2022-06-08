@@ -123,7 +123,8 @@ public class FilmDbStorage implements FilmStorage {
     @Override
 
     public Collection<Film> search(String query) {
-            return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" +  query + "%");
+        return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
+    }
 
     public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
         var filmsAsRowSet = jdbcTemplate.queryForRowSet(SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS, userId, friendId);
