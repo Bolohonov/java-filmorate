@@ -9,10 +9,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.*;
 
@@ -74,7 +72,11 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(5, (int) film.getDuration().toSeconds());
             stmt.setInt(6, film.getMpa().getId());
-            stmt.setInt(7, film.getDirector().getId());
+            if (film.getDirector() != null) {
+                stmt.setInt(7, film.getDirector().getId());
+            } else {
+                stmt.setNull(7, Types.NULL);
+            }
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
@@ -118,7 +120,10 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = new ArrayList<>();
         while (filmAsRowSet.next()) {
             films.add(getFilmById(filmAsRowSet.getInt("id")).orElseThrow());
-   
+        }
+        return films;
+    }
+
     @Override      
     public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
         var filmsAsRowSet = jdbcTemplate.queryForRowSet(SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS, userId, friendId);
