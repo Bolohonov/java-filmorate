@@ -21,6 +21,7 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
+    private final DirectorDbStorage directorDbStorage;
     private static final String SQL_SELECT =
             "select id, rate, name, description, release_date, duration, mpa, director_id from film";
     private static final String SQL_INSERT =
@@ -34,10 +35,19 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_SELECT_WITH_ID =
             "select id, rate, name, description, release_date, duration, mpa, director_id " +
                     "from film where id = ?";
+    private static final String SQL_FIND_ALL_LIKES =
+            "SELECT user_id " +
+            "FROM likes " +
+            "WHERE film_id = ?;";
+    public static final String SQL_FIND_ALL_FILMS_BY_DIRECTOR_ID =
+            "SELECT id " +
+            "FROM film " +
+            "WHERE director_id = ?;";
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
+        this.directorDbStorage = directorDbStorage;
     }
 
     @Override
@@ -92,6 +102,16 @@ public class FilmDbStorage implements FilmStorage {
             throw new FilmNotFoundException(exp.getMessage());
         }
         return film;
+    }
+
+    @Override
+    public Collection<Film> findFilmsByDirectorId(Integer directorId) {
+        var filmAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_FILMS_BY_DIRECTOR_ID, directorId);
+        List<Film> films = new ArrayList<>();
+        while (filmAsRowSet.next()) {
+            films.add(getFilmById(filmAsRowSet.getInt("id")).orElseThrow());
+        }
+        return films;
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
