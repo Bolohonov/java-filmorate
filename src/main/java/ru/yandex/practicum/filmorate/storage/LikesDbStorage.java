@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
@@ -9,12 +10,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Component
 public class LikesDbStorage implements LikesStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
+    private final DirectorDbStorage directorDbStorage;
+
     private static final String SQL_INSERT =
             "insert into likes (film_id, user_id) " +
                     "values (?, ?)";
@@ -30,11 +35,15 @@ public class LikesDbStorage implements LikesStorage {
                     "GROUP BY film.id order by likes_COUNT desc limit ?";
     private static final String SQL_SELECT =
             "select user_id from likes where film_id = ? and user_id = ?";
+    private static final String SQL_FIND_ALL_LIKES =
+           "SELECT user_id " +
+           "FROM likes " +
+           "WHERE film_id = ?;";
 
-
-    public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
+    public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
+        this.directorDbStorage = directorDbStorage;
     }
 
     @Override
@@ -69,7 +78,7 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
+        Film film =  Film.builder()
                 .id(resultSet.getInt("id"))
                 .rate(resultSet.getInt("rate"))
                 .name(resultSet.getString("name"))
@@ -77,6 +86,16 @@ public class LikesDbStorage implements LikesStorage {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
+
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_LIKES, film.getId());
+        Set<Integer> likes = new HashSet<>();
+        while (likesAsRowSet.next()) {
+            Integer likeId = likesAsRowSet.getInt("user_id");
+            likes.add(likeId);
+        }
+        film.setLikes(likes);
+        return film;
     }
 }
