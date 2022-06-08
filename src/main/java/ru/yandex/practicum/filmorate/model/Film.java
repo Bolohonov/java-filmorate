@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import javax.validation.constraints.NotBlank;
 import java.time.Duration;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Slf4j
 @Data
@@ -28,4 +30,7 @@ public class Film {
     private Duration duration;
     @JsonDeserialize(using = MpaDeSerializer.class)
     private Mpa mpa;
+    private Director director;
+    private Set<Integer> likes = new HashSet<>();
+
 }
