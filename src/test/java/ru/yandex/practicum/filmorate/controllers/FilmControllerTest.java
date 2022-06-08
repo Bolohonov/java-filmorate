@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
@@ -23,7 +22,6 @@ import static java.net.URI.create;
 import static java.time.Duration.ofSeconds;
 import static java.time.LocalDate.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -36,16 +34,13 @@ import static ru.yandex.practicum.filmorate.model.Film.builder;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 class FilmControllerTest {
 
-    @Autowired
     private final MockMvc mockMvc;
-    @Autowired
-    private FilmService filmService;
-    @Autowired
-    private UserService userService;
+    private final FilmService filmService;
+    private final UserService userService;
     private final URI filmUrl = create("http://localhost:8080/films");
 
     @Test
-    void test0getCommonFilms() throws Exception {
+    void test0getCommonFilmsCheckThatEndpointIsWorking() throws Exception {
         List<Film> filmList = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
             filmList.add(filmService.addFilm(builder()
@@ -59,15 +54,12 @@ class FilmControllerTest {
         }
         User user1 = User.builder().birthday(LocalDate.of(2000, 1, 1)).name("user1").login("login1").email("email1@ya.ru").build();
         User user2 = User.builder().birthday(LocalDate.of(2000, 1, 1)).name("user2").login("login2").email("email2@ya.ru").build();
-        User user3 = User.builder().birthday(LocalDate.of(2000, 1, 1)).name("user3").login("login3").email("email3@ya.ru").build();
 
         user1 = userService.addUser(user1);
         user2 = userService.addUser(user2);
-        user3 = userService.addUser(user3);
 
         filmService.addLike(filmList.get(0).getId(), 1);
         filmService.addLike(filmList.get(0).getId(), 2);
-        filmService.addLike(filmList.get(0).getId(), 3);
         filmService.addLike(filmList.get(1).getId(), 1);
         filmService.addLike(filmList.get(1).getId(), 2);
         filmService.addLike(filmList.get(2).getId(), 1);
