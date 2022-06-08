@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,9 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -23,17 +22,17 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
     private static final String SQL_SELECT =
-            "select id, rate, name, description, release_date, duration, mpa from film";
+            "select id, rate, name, description, release_date, duration, mpa, director_id from film";
     private static final String SQL_INSERT =
-            "insert into film (rate, name, description, release_date, duration, mpa) " +
-                    "values (?, ?, ?, ?, ?, ?)";
+            "insert into film (rate, name, description, release_date, duration, mpa, director_id) " +
+                    "values (?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE =
             "delete from film where id = ?";
     private static final String SQL_UPDATE =
             "update film set rate = ?, name = ?, description = ?, release_date = ? " +
-                    ", duration = ?, mpa = ? where id = ?";
+                    ", duration = ?, mpa = ?, director_id = ? where id = ?";
     private static final String SQL_SELECT_WITH_ID =
-            "select id, rate, name, description, release_date, duration, mpa " +
+            "select id, rate, name, description, release_date, duration, mpa, director_id " +
                     "from film where id = ?";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
@@ -57,6 +56,7 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(5, (int) film.getDuration().toSeconds());
             stmt.setInt(6, film.getMpa().getId());
+            stmt.setInt(7, film.getDirector().getId());
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
@@ -95,7 +95,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
+        Film film =  Film.builder()
                 .id(resultSet.getInt("id"))
                 .rate(resultSet.getInt("rate"))
                 .name(resultSet.getString("name"))
@@ -103,6 +103,16 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
+
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_LIKES, film.getId());
+        Set<Integer> likes = new HashSet<>();
+        while (likesAsRowSet.next()) {
+            Integer likeId = likesAsRowSet.getInt("user_id");
+            likes.add(likeId);
+        }
+        film.setLikes(likes);
+        return film;
     }
 }
