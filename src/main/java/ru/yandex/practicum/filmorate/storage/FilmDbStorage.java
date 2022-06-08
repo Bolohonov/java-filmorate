@@ -13,9 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -42,7 +40,16 @@ public class FilmDbStorage implements FilmStorage {
             "update film_mpa set mpa_id = ? where film_id = ?";
     private static final String SQL_DELETE_MPA =
             "delete from film_mpa where film_id = ? ";
-
+    
+    private static final String SQL_SEARCH_TITLE =
+            "select *" +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "WHERE FILM.NAME ilike ? " +
+                    "GROUP BY film.id order by likes_COUNT desc";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -103,6 +110,11 @@ public class FilmDbStorage implements FilmStorage {
             throw new FilmNotFoundException(exp.getMessage());
         }
         return film;
+    }
+
+    @Override
+    public Collection<Film> search(String query) {
+            return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" +  query + "%");
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
