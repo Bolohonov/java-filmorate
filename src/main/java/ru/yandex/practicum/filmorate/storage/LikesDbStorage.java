@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.storage;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.RecommendationNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -10,8 +11,14 @@ import ru.yandex.practicum.filmorate.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
+
 import java.util.*;
 import java.util.stream.Collectors;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 
 @Slf4j
 @Component
@@ -38,7 +45,17 @@ public class LikesDbStorage implements LikesStorage {
                     "(SELECT l.film_id FROM likes AS l where l.user_id = ?) as LC ON FILM.ID = LC.film_id " +
                     "GROUP BY film.id";
     private static final String SQL_SELECT =
+
             "select * from likes where film_id = ? and user_id = ?";
+
+            
+    private static final String FIND_ALL_LIKES_SQL =
+            "SELECT id " +
+            "FROM user_filmorate " +
+            "WHERE id IN (SELECT user_id " +
+                              "FROM likes " +
+                              "WHERE film_id = ?);";
+
 
 
     public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, UserDbStorage userDbStorage) {
@@ -133,7 +150,7 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
+        Film film =  Film.builder()
                 .id(resultSet.getInt("id"))
                 .rate(resultSet.getInt("rate"))
                 .name(resultSet.getString("name"))
@@ -142,5 +159,14 @@ public class LikesDbStorage implements LikesStorage {
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
+
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(FIND_ALL_LIKES_SQL, film.getId());
+        Set<Integer> likes = new HashSet<>();
+        while (likesAsRowSet.next()) {
+            Integer likeId = likesAsRowSet.getInt("id");
+            likes.add(likeId);
+        }
+        film.setLikes(likes);
+        return film;
     }
 }

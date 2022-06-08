@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,9 +14,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -35,6 +34,20 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_SELECT_WITH_ID =
             "select id, rate, name, description, release_date, duration, mpa " +
                     "from film where id = ?";
+    private static final String FIND_ALL_LIKES_SQL =
+            "SELECT id " +
+            "FROM user_filmorate " +
+            "WHERE id IN (SELECT user_id " +
+                         "FROM likes " +
+                         "WHERE film_id = ?);";
+    public static final String SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS =
+            "SELECT film_id\n" +
+                    "FROM likes\n" +
+                    "WHERE user_id = ?\n" +
+                    "INTERSECT\n" +
+                    "SELECT film_id\n" +
+                    "FROM likes\n" +
+                    "WHERE user_id = ?;";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -94,8 +107,18 @@ public class FilmDbStorage implements FilmStorage {
         return film;
     }
 
+    @Override
+    public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
+        var filmsAsRowSet = jdbcTemplate.queryForRowSet(SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS, userId, friendId);
+        List<Film> films = new ArrayList<>();
+        while (filmsAsRowSet.next()) {
+            films.add(getFilmById(filmsAsRowSet.getInt("film_id")).orElseThrow());
+        }
+        return films;
+    }
+
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
-        return Film.builder()
+        Film film =  Film.builder()
                 .id(resultSet.getInt("id"))
                 .rate(resultSet.getInt("rate"))
                 .name(resultSet.getString("name"))
@@ -104,5 +127,14 @@ public class FilmDbStorage implements FilmStorage {
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
                 .build();
+
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(FIND_ALL_LIKES_SQL, film.getId());
+        Set<Integer> likes = new HashSet<>();
+        while (likesAsRowSet.next()) {
+            Integer likeId = likesAsRowSet.getInt("id");
+            likes.add(likeId);
+        }
+        film.setLikes(likes);
+        return film;
     }
 }
