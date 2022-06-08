@@ -8,12 +8,15 @@ import ru.yandex.practicum.filmorate.exceptions.FunctionalityNotSupportedExcepti
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -85,6 +88,19 @@ public class FilmService {
 
     public Collection<Film> getFilmsByLikes(Integer count) {
         return likesStorage.getFilmsByLikes(count);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Optional<User> user = userService.getUserById(userId);
+        Optional<User> friend = userService.getUserById(friendId);
+        if (user.isPresent() && friend.isPresent()) {
+            return filmStorage
+                    .getCommonFilmsBetweenTwoUsers(userId, friendId)
+                    .stream()
+                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                    .collect(toList());
+        }
+        return new ArrayList<>();
     }
 
     private boolean validateFilm(Film film) {
