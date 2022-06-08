@@ -54,7 +54,10 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsByLikes(Integer count) {
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
+        if (genre != 0 && year != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES, this::mapRowToFilm, count);
+        }
         return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES, this::mapRowToFilm, count);
     }
 
