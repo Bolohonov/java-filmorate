@@ -28,6 +28,39 @@ public class LikesDbStorage implements LikesStorage {
                     "LEFT JOIN Likes AS l ON f.id = l.film_id " +
                     "GROUP BY f.id) as LC oN FILM.ID = LC.ID " +
                     "GROUP BY film.id order by likes_COUNT desc limit ?";
+
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN FILM_GENRE FG ON FILM.ID = FG.FILM_ID " +
+                    "LEFT JOIN GENRE G ON FG.GENRE_ID = G.ID " +
+                    "WHERE g.ID = ? AND year(FILM.RELEASE_DATE) = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN FILM_GENRE FG ON FILM.ID = FG.FILM_ID " +
+                    "LEFT JOIN GENRE G ON FG.GENRE_ID = G.ID " +
+                    "WHERE g.ID = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
+
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_YEAR =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "WHERE year(FILM.RELEASE_DATE) = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
     private static final String SQL_SELECT =
             "select user_id from likes where film_id = ? and user_id = ?";
 
@@ -56,9 +89,16 @@ public class LikesDbStorage implements LikesStorage {
     @Override
     public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
         if (genre != 0 && year != 0) {
-            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES, this::mapRowToFilm, count);
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR, this::mapRowToFilm, genre, year, count);
+        }
+        if (genre != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE, this::mapRowToFilm, genre, count);
+        }
+        if (year != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_YEAR, this::mapRowToFilm, year, count);
         }
         return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES, this::mapRowToFilm, count);
+
     }
 
     private boolean isLLikeExist(Integer filmId, Integer userId) {

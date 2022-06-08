@@ -66,3 +66,10 @@ insert into LIKES (FILM_ID, USER_ID)
 values (30,10);
 insert into LIKES (FILM_ID, USER_ID)
 values (30,30);
+insert into GENRE (ID, NAME)
+values (1,'Комедия'),
+       (2, 'Ужас'),
+       (3, 'Драма');
+insert into FILM_GENRE (FILM_ID, GENRE_ID)
+values (10,1),
+       (20, 2);
