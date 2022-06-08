@@ -93,6 +93,7 @@ public class LikesDbStorage implements LikesStorage {
         Set<Integer> likes = new HashSet<>();
         while (likesAsRowSet.next()) {
             Integer likeId = likesAsRowSet.getInt("user_id");
+
             likes.add(likeId);
         }
         film.setLikes(likes);

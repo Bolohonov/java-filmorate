@@ -17,4 +17,7 @@ public interface FilmStorage {
     Optional<Film> getFilmById(Integer id);
 
     Collection<Film> findFilmsByDirectorId(Integer directorId);
+
+    Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId);
+
 }

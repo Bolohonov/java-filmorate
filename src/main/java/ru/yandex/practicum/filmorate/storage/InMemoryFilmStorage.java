@@ -56,6 +56,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Collection<Film> findFilmsByDirectorId(Integer directorId) {
         return null;
     }
+  
+    @Override
+    public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
+        return null;
+    }
 
     private boolean checkIdNotDuplicated(int id) {
         if (!films.containsKey(id)) {

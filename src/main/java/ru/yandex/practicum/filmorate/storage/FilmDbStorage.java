@@ -43,6 +43,14 @@ public class FilmDbStorage implements FilmStorage {
             "SELECT id " +
             "FROM film " +
             "WHERE director_id = ?;";
+    public static final String SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS =
+            "SELECT film_id\n" +
+                    "FROM likes\n" +
+                    "WHERE user_id = ?\n" +
+                    "INTERSECT\n" +
+                    "SELECT film_id\n" +
+                    "FROM likes\n" +
+                    "WHERE user_id = ?;";
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -110,6 +118,13 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = new ArrayList<>();
         while (filmAsRowSet.next()) {
             films.add(getFilmById(filmAsRowSet.getInt("id")).orElseThrow());
+   
+    @Override      
+    public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
+        var filmsAsRowSet = jdbcTemplate.queryForRowSet(SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS, userId, friendId);
+        List<Film> films = new ArrayList<>();
+        while (filmsAsRowSet.next()) {
+            films.add(getFilmById(filmsAsRowSet.getInt("film_id")).orElseThrow());
         }
         return films;
     }
@@ -130,6 +145,7 @@ public class FilmDbStorage implements FilmStorage {
         Set<Integer> likes = new HashSet<>();
         while (likesAsRowSet.next()) {
             Integer likeId = likesAsRowSet.getInt("user_id");
+
             likes.add(likeId);
         }
         film.setLikes(likes);

@@ -90,5 +90,11 @@ public class FilmController {
             log.warn(e.getMessage());
             throw new ResponseStatusException(BAD_REQUEST);
         }
+
+    @GetMapping("/common") //common?userId={userId}&friendId={friendId}
+    @ResponseStatus(OK)
+    public List<Film> getCommonFilms (@RequestParam Integer userId,
+                                      @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }
