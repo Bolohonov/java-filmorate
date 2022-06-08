@@ -38,7 +38,7 @@ public class LikesDbStorage implements LikesStorage {
                     "(SELECT l.film_id FROM likes AS l where l.user_id = ?) as LC ON FILM.ID = LC.film_id " +
                     "GROUP BY film.id";
     private static final String SQL_SELECT =
-            "select user_id from likes where film_id = ? and user_id = ?";
+            "select * from likes where film_id = ? and user_id = ?";
 
 
     public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, UserDbStorage userDbStorage) {
@@ -100,15 +100,13 @@ public class LikesDbStorage implements LikesStorage {
         users.remove(userDbStorage.findUserById(userId).get());
         Map<User, Collection<Film>> usersMatchingLikes = new HashMap<>();
         for (User u : users) {
-            if (u.getId() != userId) {
-                Collection<Film> likesMatch;
-                likesMatch = firstUserLikes
-                        .stream()
-                        .filter(this.getFilmsThatUserLikes(u.getId())::contains)
-                        .collect(Collectors.toSet());
-                if (likesMatch.size() != 0) {
-                    usersMatchingLikes.put(u, likesMatch);
-                }
+            Collection<Film> likesMatch;
+            likesMatch = firstUserLikes
+                    .stream()
+                    .filter(this.getFilmsThatUserLikes(u.getId())::contains)
+                    .collect(Collectors.toSet());
+            if (likesMatch.size() != 0) {
+                usersMatchingLikes.put(u, likesMatch);
             }
         }
         if (usersMatchingLikes.isEmpty()) {
