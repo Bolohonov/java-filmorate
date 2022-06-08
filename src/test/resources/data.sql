@@ -56,3 +56,5 @@ insert into LIKES (FILM_ID, USER_ID)
 values (30,10);
 insert into LIKES (FILM_ID, USER_ID)
 values (30,30);
+insert into LIKES (FILM_ID, USER_ID)
+values (50,30);
