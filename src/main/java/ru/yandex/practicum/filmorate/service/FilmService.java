@@ -13,6 +13,8 @@ import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import java.time.LocalDate;
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 @Slf4j
 @Service
 public class FilmService {
@@ -99,5 +101,23 @@ public class FilmService {
             throw new ValidationException("Указана отрицательная продолжительность.");
         }
         return true;
+    }
+
+    public List<Film> getFilmsByDirectorSortedByLikeOrYear(Integer directorId, String sortBy) {
+        Collection<Film> films = filmStorage.findFilmsByDirectorId(directorId);
+        switch (sortBy) {
+            case "likes":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                        .collect(toList());
+            case "year":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getReleaseDate().getYear() - o1.getReleaseDate().getYear())
+                        .collect(toList());
+        }
+        log.warn("Кто-то пытается отсортировать фильмы режиссера не по году или лайкам");
+        throw new IllegalArgumentException("Oops! Сортирует только по year или likes.");
     }
 }
