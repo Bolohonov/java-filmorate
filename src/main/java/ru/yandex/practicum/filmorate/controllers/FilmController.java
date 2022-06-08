@@ -90,6 +90,7 @@ public class FilmController {
             log.warn(e.getMessage());
             throw new ResponseStatusException(BAD_REQUEST);
         }
+    }
 
     @GetMapping("/common") //common?userId={userId}&friendId={friendId}
     @ResponseStatus(OK)
