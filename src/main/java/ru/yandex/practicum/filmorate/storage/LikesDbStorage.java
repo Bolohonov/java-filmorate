@@ -25,7 +25,9 @@ import java.util.Set;
 public class LikesDbStorage implements LikesStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
+    private final DirectorDbStorage directorDbStorage;
     private final UserDbStorage userDbStorage;
+
     private static final String SQL_INSERT =
             "insert into likes (film_id, user_id) " +
                     "values (?, ?)";
@@ -40,27 +42,56 @@ public class LikesDbStorage implements LikesStorage {
                     "GROUP BY f.id) as LC oN FILM.ID = LC.ID " +
                     "GROUP BY film.id order by likes_COUNT desc limit ?";
 
+
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN FILM_GENRE FG ON FILM.ID = FG.FILM_ID " +
+                    "LEFT JOIN GENRE G ON FG.GENRE_ID = G.ID " +
+                    "WHERE g.ID = ? AND year(FILM.RELEASE_DATE) = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN FILM_GENRE FG ON FILM.ID = FG.FILM_ID " +
+                    "LEFT JOIN GENRE G ON FG.GENRE_ID = G.ID " +
+                    "WHERE g.ID = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
+
+    private static final String SQL_SELECT_FILMS_BY_LIKES_BY_YEAR =
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "WHERE year(FILM.RELEASE_DATE) = ? " +
+                    "GROUP BY film.id order by likes_COUNT desc limit ?";
+
     private static final String SQL_SELECT_FILMS_THAT_USER_LIKES =
             "select * from film RIGHT JOIN " +
                     "(SELECT l.film_id FROM likes AS l where l.user_id = ?) as LC ON FILM.ID = LC.film_id " +
                     "GROUP BY film.id";
+
     private static final String SQL_SELECT =
+            "select user_id from likes where film_id = ? and user_id = ?";
+    private static final String SQL_FIND_ALL_LIKES =
+           "SELECT user_id " +
+           "FROM likes " +
+           "WHERE film_id = ?;";
 
-            "select * from likes where film_id = ? and user_id = ?";
-
-            
-    private static final String FIND_ALL_LIKES_SQL =
-            "SELECT id " +
-            "FROM user_filmorate " +
-            "WHERE id IN (SELECT user_id " +
-                              "FROM likes " +
-                              "WHERE film_id = ?);";
-
-
-
-    public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, UserDbStorage userDbStorage) {
+    public LikesDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage, UserDbStorage userDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
+        this.directorDbStorage = directorDbStorage;
         this.userDbStorage = userDbStorage;
     }
 
@@ -81,8 +112,18 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsByLikes(Integer count) {
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
+        if (genre != 0 && year != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR, this::mapRowToFilm, genre, year, count);
+        }
+        if (genre != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE, this::mapRowToFilm, genre, count);
+        }
+        if (year != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_YEAR, this::mapRowToFilm, year, count);
+        }
         return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES, this::mapRowToFilm, count);
+
     }
 
     @Override
@@ -158,12 +199,14 @@ public class LikesDbStorage implements LikesStorage {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
 
-        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(FIND_ALL_LIKES_SQL, film.getId());
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_LIKES, film.getId());
         Set<Integer> likes = new HashSet<>();
         while (likesAsRowSet.next()) {
-            Integer likeId = likesAsRowSet.getInt("id");
+            Integer likeId = likesAsRowSet.getInt("user_id");
+
             likes.add(likeId);
         }
         film.setLikes(likes);
