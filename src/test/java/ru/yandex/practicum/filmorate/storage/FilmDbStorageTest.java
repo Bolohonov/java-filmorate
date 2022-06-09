@@ -37,7 +37,7 @@ class FilmDbStorageTest {
     void testAddFilm() {
         Film newFilm = Film.builder()
                 .description("Test0Desc")
-                .mpa(mpaDbStorage.getNewMpaObject(3))
+                .mpa(mpaDbStorage.getMpaById(3).get())
                 .rate(5)
                 .name("Test")
                 .releaseDate(LocalDate.of(2010, 11, 11))

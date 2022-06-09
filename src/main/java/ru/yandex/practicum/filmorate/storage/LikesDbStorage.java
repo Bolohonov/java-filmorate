@@ -198,7 +198,7 @@ public class LikesDbStorage implements LikesStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
-                .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .mpa(mpaDbStorage.getMpaById(resultSet.getInt("mpa")).get())
                 .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
 

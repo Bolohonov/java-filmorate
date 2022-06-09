@@ -43,10 +43,6 @@ public class UserService {
     }
 
     public Optional<User> getUserById(Integer userId) {
-        if (!userStorage.findUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
-        }
-        log.warn("Get user with ID {}", userId);
         return userStorage.findUserById(userId);
     }
 

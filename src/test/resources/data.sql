@@ -25,12 +25,17 @@ insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (50, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
 values (60, 'Film6Name', 'Test6Desc', '2003-08-06', 110, 1, 1, 2);
-INSERT INTO mpa (title) VALUES ('G');
-INSERT INTO mpa (title) VALUES ('PG');
-INSERT INTO mpa (title) VALUES ('PG_13');
-INSERT INTO mpa (title) VALUES ('R');
-INSERT INTO mpa (title) VALUES ('NC_17');
-INSERT INTO mpa (title) VALUES ('NR');
+INSERT INTO mpa (name) VALUES ('G');
+INSERT INTO mpa (name) VALUES ('PG');
+INSERT INTO mpa (name) VALUES ('PG_13');
+INSERT INTO mpa (name) VALUES ('R');
+INSERT INTO mpa (name) VALUES ('NC_17');
+INSERT INTO genre (name) VALUES ('Комедия');
+INSERT INTO genre (name) VALUES ('Драма');
+INSERT INTO genre (name) VALUES ('Мультфильм');
+INSERT INTO genre (name) VALUES ('Ужасы');
+INSERT INTO genre (name) VALUES ('Боевик');
+INSERT INTO genre (name) VALUES ('Мелодрама');
 insert into FRIENDS (FIRST_USER_ID, SECOND_USER_ID, ACCEPT_FIRST, ACCEPT_SECOND)
 values (10,20,true, false);
 insert into FRIENDS (FIRST_USER_ID, SECOND_USER_ID, ACCEPT_FIRST, ACCEPT_SECOND)
@@ -59,10 +64,6 @@ insert into LIKES (FILM_ID, USER_ID)
 values (30,10);
 insert into LIKES (FILM_ID, USER_ID)
 values (30,30);
-insert into GENRE (ID, NAME)
-values (1,'Комедия'),
-       (2, 'Ужас'),
-       (3, 'Драма');
 insert into FILM_GENRE (FILM_ID, GENRE_ID)
 values (10,1),
        (20, 2);
