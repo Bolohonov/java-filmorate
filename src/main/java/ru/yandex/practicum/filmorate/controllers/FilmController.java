@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static org.springframework.http.HttpStatus.OK;
 
 @Validated
@@ -78,6 +80,18 @@ public class FilmController {
         }
         log.warn("Get {} most popular films", count);
         return filmService.getFilmsByLikes(count, genre, year);
+    }
+
+    @GetMapping("/director/{directorId}")
+    @ResponseStatus(OK)
+    public List<Film> getFilmsByDirectorSortedByLikeOrYear(@PathVariable Integer directorId,
+                                                           @RequestParam String sortBy) {
+        try {
+            return filmService.getFilmsByDirectorSortedByLikeOrYear(directorId, sortBy);
+        } catch (IllegalArgumentException e) {
+            log.warn(e.getMessage());
+            throw new ResponseStatusException(BAD_REQUEST);
+        }
     }
 
     @GetMapping("/common") //common?userId={userId}&friendId={friendId}
