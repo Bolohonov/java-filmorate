@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.service.FilmService;
 
 import javax.validation.Valid;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+
+import static org.springframework.http.HttpStatus.OK;
 
 @Validated
 @RestController
@@ -73,5 +76,12 @@ public class FilmController {
         }
         log.warn("Get {} most popular films", count);
         return filmService.getFilmsByLikes(count);
+    }
+
+    @GetMapping("/common") //common?userId={userId}&friendId={friendId}
+    @ResponseStatus(OK)
+    public List<Film> getCommonFilms (@RequestParam Integer userId,
+                                      @RequestParam Integer friendId) {
+        return filmService.getCommonFilms(userId, friendId);
     }
 }

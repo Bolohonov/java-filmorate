@@ -55,6 +55,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
+        return null;
+    }
+
     private boolean checkIdNotDuplicated(int id) {
         if (!films.containsKey(id)) {
             log.warn("ID has been checked");
