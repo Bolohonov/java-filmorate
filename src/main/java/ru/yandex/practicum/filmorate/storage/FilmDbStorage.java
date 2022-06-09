@@ -46,7 +46,7 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE FILM.NAME ilike ? " +
                     "GROUP BY film.id order by likes_COUNT desc";
 
-    private static final String FIND_ALL_LIKES_SQL =
+    private static final String SQL_FIND_ALL_LIKES =
 
             "SELECT user_id " +
             "FROM likes " +
