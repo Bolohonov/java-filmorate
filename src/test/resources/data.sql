@@ -28,16 +28,6 @@ INSERT INTO mpa (title) VALUES ('PG_13');
 INSERT INTO mpa (title) VALUES ('R');
 INSERT INTO mpa (title) VALUES ('NC_17');
 INSERT INTO mpa (title) VALUES ('NR');
-insert into FILM_MPA (FILM_ID, MPA_ID)
-values (10,1);
-insert into FILM_MPA (FILM_ID, MPA_ID)
-values (20,2);
-insert into FILM_MPA (FILM_ID, MPA_ID)
-values (30,4);
-insert into FILM_MPA (FILM_ID, MPA_ID)
-values (40,4);
-insert into FILM_MPA (FILM_ID, MPA_ID)
-values (50,3);
 insert into FRIENDS (FIRST_USER_ID, SECOND_USER_ID, ACCEPT_FIRST, ACCEPT_SECOND)
 values (10,20,true, false);
 insert into FRIENDS (FIRST_USER_ID, SECOND_USER_ID, ACCEPT_FIRST, ACCEPT_SECOND)
@@ -73,3 +63,6 @@ values (1,'Комедия'),
 insert into FILM_GENRE (FILM_ID, GENRE_ID)
 values (10,1),
        (20, 2);
+insert into LIKES (FILM_ID, USER_ID)
+values (50,30);
+

@@ -71,4 +71,10 @@ class LikesDbStorageTest {
         assertEquals(0, likesDbStorage.getFilmsByLikes(5,3, 3).size());
 
     }
+  
+    @Test
+    void getRecommendations() {
+        assertThat(likesDbStorage.getRecommendations(10).contains(filmDbStorage.getFilmById(50)));
+    };
+
 }
