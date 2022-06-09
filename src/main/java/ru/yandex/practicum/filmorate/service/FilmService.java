@@ -84,8 +84,8 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public Collection<Film> getFilmsByLikes(Integer count) {
-        return likesStorage.getFilmsByLikes(count);
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
+        return likesStorage.getFilmsByLikes(count, genre, year);
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
