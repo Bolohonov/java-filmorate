@@ -30,97 +30,57 @@ public class ReviewController {
         return reviewService.updateReview(review);
     }
 
-    @DeleteMapping("{id}")
-    public Map<String, String> deleteReviewById(@PathVariable(required = false) Integer id) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
+    @DeleteMapping("/{id}")
+    public Map<String, String> deleteReviewById(@PathVariable Integer id) {
         return reviewService.deleteReviewById(id);
     }
 
-    @GetMapping("{id}")
-    public Review findById(@PathVariable(required = false) Integer id) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
+    @GetMapping("/{id}")
+    public Review findById(@PathVariable Integer id) {
         return reviewService.findById(id);
     }
 
     @GetMapping
     public List<Review> getAllReviewsByFilmId(
-            @RequestParam(required = false) Integer film,
+            @RequestParam(required = false) Integer filmId,
             @RequestParam(defaultValue = "10", required = false) Integer count
     ) {
-        if (film == null) {
+        if (filmId == null) {
             throw new IncorrectParameterException("Query param <film> incorrect");
         }
 
-        return reviewService.getAllReviewsByFilmId(film, count);
+        return reviewService.getAllReviewsByFilmId(filmId, count);
     }
 
-    @PutMapping("{id}/like/{userId}")
+    @PutMapping("/{id}/like/{userId}")
     public Review putLikeReview(
-            @PathVariable(required = false) Integer id,
-            @PathVariable(required = false) Integer userId
+            @PathVariable Integer id,
+            @PathVariable Integer userId
     ) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
-        if (userId == null) {
-            throw new IncorrectParameterException("User id incorrect");
-        }
-
         return reviewService.addLikeReview(id, userId);
     }
 
-    @PutMapping("{id}/dislike/{userId}")
+    @PutMapping("/{id}/dislike/{userId}")
     public Review putDislikeReview(
-            @PathVariable(required = false) Integer id,
-            @PathVariable(required = false) Integer userId
+            @PathVariable Integer id,
+            @PathVariable Integer userId
     ) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
-        if (userId == null) {
-            throw new IncorrectParameterException("User id incorrect");
-        }
-
         return reviewService.addDislikeReview(id, userId);
     }
 
-    @DeleteMapping("{id}/like/{userId}")
+    @DeleteMapping("/{id}/like/{userId}")
     public Review deleteLikeReview(
-            @PathVariable(required = false) Integer id,
-            @PathVariable(required = false) Integer userId
+            @PathVariable Integer id,
+            @PathVariable Integer userId
     ) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
-        if (userId == null) {
-            throw new IncorrectParameterException("User id incorrect");
-        }
-
         return reviewService.deleteLikeReview(id, userId);
     }
 
-    @DeleteMapping("{id}/dislike/{userId}")
+    @DeleteMapping("/{id}/dislike/{userId}")
     public Review deleteDislikeReview(
-            @PathVariable(required = false) Integer id,
-            @PathVariable(required = false) Integer userId
+            @PathVariable Integer id,
+            @PathVariable Integer userId
     ) {
-        if (id == null) {
-            throw new IncorrectParameterException("Review id incorrect");
-        }
-
-        if (userId == null) {
-            throw new IncorrectParameterException("User id incorrect");
-        }
-
         return reviewService.deleteDislikeReview(id, userId);
     }
 

@@ -11,9 +11,9 @@ import javax.validation.constraints.NotNull;
 public class Review {
     private int id;
     @NotNull
-    private int userId;
+    private Integer userId;
     @NotNull
-    private int filmId;
+    private Integer filmId;
     @NotBlank
     private String content;
     private int useful;
