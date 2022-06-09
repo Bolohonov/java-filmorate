@@ -112,12 +112,12 @@ public class LikesDbStorage implements LikesStorage {
     }
 
     @Override
-    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
-        if (genre != 0 && year != 0) {
-            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR, this::mapRowToFilm, genre, year, count);
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genreId, Integer year) {
+        if (genreId != 0 && year != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR, this::mapRowToFilm, genreId, year, count);
         }
-        if (genre != 0) {
-            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE, this::mapRowToFilm, genre, count);
+        if (genreId != 0) {
+            return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_GENRE, this::mapRowToFilm, genreId, count);
         }
         if (year != 0) {
             return jdbcTemplate.query(SQL_SELECT_FILMS_BY_LIKES_BY_YEAR, this::mapRowToFilm, year, count);

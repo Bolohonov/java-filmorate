@@ -73,13 +73,13 @@ public class FilmController {
     @GetMapping("/popular")
     public Collection<Film> getFilmsByLikes(
             @RequestParam(value = "count", defaultValue = "10", required = false) Integer count,
-            @RequestParam(value = "genre", defaultValue = "0", required = false) Integer genre,
+            @RequestParam(value = "genreId", defaultValue = "0", required = false) Integer genreId,
             @RequestParam(value = "year", defaultValue = "0", required = false) Integer year) {
-        if (count <= 0 || genre < 0 || year < 0) {
+        if (count <= 0 || genreId < 0 || year < 0) {
             throw new IllegalArgumentException();
         }
         log.warn("Get {} most popular films", count);
-        return filmService.getFilmsByLikes(count, genre, year);
+        return filmService.getFilmsByLikes(count, genreId, year);
     }
 
     @GetMapping("/director/{directorId}")
