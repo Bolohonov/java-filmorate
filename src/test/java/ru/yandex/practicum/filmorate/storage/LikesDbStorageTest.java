@@ -39,8 +39,14 @@ class LikesDbStorageTest {
     @Test
     void getFilmsByLikes() {
         Collection<Film> films = likesDbStorage.getFilmsByLikes(1);
+        films.forEach(System.out::println);
         int length = films.toArray().length;
         assertTrue(length == 1);
         assertThat(films.contains(filmDbStorage.getFilmById(10)));
     }
+
+    @Test
+    void getRecommendations() {
+        assertThat(likesDbStorage.getRecommendations(10).contains(filmDbStorage.getFilmById(50)));
+    };
 }
