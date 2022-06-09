@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.FunctionalityNotSupportedException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -13,6 +14,7 @@ import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -117,6 +119,24 @@ public class FilmService {
         return true;
     }
 
+
+    public Collection<Film> search(String query, String by) {
+        List<String> list = Arrays.stream(by.split(","))
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        if (list.contains("director") && list.contains("title")) {
+            throw new FunctionalityNotSupportedException("Функциональность не разработана");
+        }
+        if (list.contains("director")) {
+            throw new FunctionalityNotSupportedException("Функциональность не разработана");
+        }
+        if (list.contains("title")) {
+            return filmStorage.search(query);
+        }
+        throw new FunctionalityNotSupportedException("Функциональность не разработана");
+    }
+
+
     public List<Film> getFilmsByDirectorSortedByLikeOrYear(Integer directorId, String sortBy) {
         Collection<Film> films = filmStorage.findFilmsByDirectorId(directorId);
         switch (sortBy) {
@@ -134,4 +154,5 @@ public class FilmService {
         log.warn("Кто-то пытается отсортировать фильмы режиссера не по году или лайкам");
         throw new IllegalArgumentException("Oops! Сортирует только по year или likes.");
     }
+
 }

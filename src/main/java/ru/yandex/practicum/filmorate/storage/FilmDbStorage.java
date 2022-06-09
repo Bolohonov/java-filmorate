@@ -33,7 +33,21 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_SELECT_WITH_ID =
             "select id, rate, name, description, release_date, duration, mpa, director_id " +
                     "from film where id = ?";
+
+
+    
+    private static final String SQL_SEARCH_TITLE =
+            "select *" +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "WHERE FILM.NAME ilike ? " +
+                    "GROUP BY film.id order by likes_COUNT desc";
+
     private static final String SQL_FIND_ALL_LIKES =
+
             "SELECT user_id " +
             "FROM likes " +
             "WHERE film_id = ?;";
@@ -49,6 +63,10 @@ public class FilmDbStorage implements FilmStorage {
                     "SELECT film_id\n" +
                     "FROM likes\n" +
                     "WHERE user_id = ?;";
+
+
+
+    
 
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
@@ -116,6 +134,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public Collection<Film> search(String query) {
+        return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
+    }
+
+
     public Collection<Film> findFilmsByDirectorId(Integer directorId) {
         var filmAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_FILMS_BY_DIRECTOR_ID, directorId);
         List<Film> films = new ArrayList<>();
@@ -133,6 +156,7 @@ public class FilmDbStorage implements FilmStorage {
             films.add(getFilmById(filmsAsRowSet.getInt("film_id")).orElseThrow());
         }
         return films;
+
     }
 
     private Film mapRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
