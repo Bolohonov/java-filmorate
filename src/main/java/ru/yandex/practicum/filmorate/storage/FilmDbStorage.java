@@ -157,13 +157,13 @@ public class FilmDbStorage implements FilmStorage {
         List<String> list = Arrays.stream(by.split(","))
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
-        if (list.contains("director") && list.contains("title")) {
+        if (list.contains("director") && list.contains("title") && list.size() == 2) {
             return jdbcTemplate.query(SQL_SEARCH_DIRECTOR_TITLE, this::mapRowToFilm, "%" + query + "%", "%" + query + "%");
         }
-        if (list.contains("director")) {
+        if (list.contains("director") && list.size() == 1) {
             return jdbcTemplate.query(SQL_SEARCH_DIRECTOR, this::mapRowToFilm, "%" + query + "%");
         }
-        if (list.contains("title")) {
+        if (list.contains("title") && list.size() == 1) {
             return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
         }
         throw new FunctionalityNotSupportedException("Функциональность не поддерживается");
