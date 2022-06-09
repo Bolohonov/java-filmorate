@@ -85,7 +85,7 @@ public class UserController {
     public Collection<Event> getEventsForUser(@PathVariable("id") Integer id) {
         log.warn("Get events of user with ID {}", id);
         return userService.getEventsForUser(id);
-
+    }
     @GetMapping("/{userId}/recommendations")
     public Collection<Film> getRecommendations(@PathVariable("userId") Integer userId) {
         log.warn("Add recommendations to user ID {}", userId);
