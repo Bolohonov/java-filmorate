@@ -126,11 +126,6 @@ public class UserService {
         return true;
     }
 
-
-    public Collection<Event> getEventsForUser(int id) {
-        return eventStorage.getEventsForUser(id);
-}
-
     public Collection<Film> getRecommendations(Integer userId) {
         if (!userStorage.findUserById(userId).isPresent()) {
             throw new UserNotFoundException("Пользователь не найден");

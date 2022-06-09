@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.FilmService;
+import ru.yandex.practicum.filmorate.service.EventService;
 import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
@@ -20,10 +20,12 @@ import java.util.Optional;
 @Slf4j
 public class UserController {
     private final UserService userService;
+    private final EventService eventService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, EventService eventService) {
         this.userService = userService;
+        this.eventService = eventService;
     }
 
     @GetMapping
@@ -84,7 +86,8 @@ public class UserController {
     @GetMapping("/{id}/feed")
     public Collection<Event> getEventsForUser(@PathVariable("id") Integer id) {
         log.warn("Get events of user with ID {}", id);
-        return userService.getEventsForUser(id);
+        return eventService.getEventsForUser(id);
+    }
 
     @GetMapping("/{userId}/recommendations")
     public Collection<Film> getRecommendations(@PathVariable("userId") Integer userId) {
