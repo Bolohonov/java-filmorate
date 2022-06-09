@@ -9,10 +9,8 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
+import java.sql.*;
 import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.Duration;
 import java.util.*;
 
@@ -21,19 +19,21 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcTemplate jdbcTemplate;
     private final MpaStorage mpaDbStorage;
+    private final DirectorDbStorage directorDbStorage;
     private static final String SQL_SELECT =
-            "select id, rate, name, description, release_date, duration, mpa from film";
+            "select id, rate, name, description, release_date, duration, mpa, director_id from film";
     private static final String SQL_INSERT =
-            "insert into film (rate, name, description, release_date, duration, mpa) " +
-                    "values (?, ?, ?, ?, ?, ?)";
+            "insert into film (rate, name, description, release_date, duration, mpa, director_id) " +
+                    "values (?, ?, ?, ?, ?, ?, ?)";
     private static final String SQL_DELETE =
             "delete from film where id = ?";
     private static final String SQL_UPDATE =
             "update film set rate = ?, name = ?, description = ?, release_date = ? " +
-                    ", duration = ?, mpa = ? where id = ?";
+                    ", duration = ?, mpa = ?, director_id = ? where id = ?";
     private static final String SQL_SELECT_WITH_ID =
-            "select id, rate, name, description, release_date, duration, mpa " +
+            "select id, rate, name, description, release_date, duration, mpa, director_id " +
                     "from film where id = ?";
+
 
     
     private static final String SQL_SEARCH_TITLE =
@@ -47,11 +47,14 @@ public class FilmDbStorage implements FilmStorage {
                     "GROUP BY film.id order by likes_COUNT desc";
 
     private static final String FIND_ALL_LIKES_SQL =
+
+            "SELECT user_id " +
+            "FROM likes " +
+            "WHERE film_id = ?;";
+    public static final String SQL_FIND_ALL_FILMS_BY_DIRECTOR_ID =
             "SELECT id " +
-            "FROM user_filmorate " +
-            "WHERE id IN (SELECT user_id " +
-                         "FROM likes " +
-                         "WHERE film_id = ?);";
+            "FROM film " +
+            "WHERE director_id = ?;";
     public static final String SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS =
             "SELECT film_id\n" +
                     "FROM likes\n" +
@@ -62,9 +65,13 @@ public class FilmDbStorage implements FilmStorage {
                     "WHERE user_id = ?;";
 
 
-    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage) {
+
+    
+
+    public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
+        this.directorDbStorage = directorDbStorage;
     }
 
     @Override
@@ -83,6 +90,11 @@ public class FilmDbStorage implements FilmStorage {
             stmt.setDate(4, Date.valueOf(film.getReleaseDate()));
             stmt.setInt(5, (int) film.getDuration().toSeconds());
             stmt.setInt(6, film.getMpa().getId());
+            if (film.getDirector() != null) {
+                stmt.setInt(7, film.getDirector().getId());
+            } else {
+                stmt.setNull(7, Types.NULL);
+            }
             return stmt;
         }, keyHolder);
         film.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
@@ -103,6 +115,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration().toSeconds(),
                 film.getMpa().getId(),
+                film.getDirector(),
                 film.getId());
         return film;
     }
@@ -121,11 +134,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-
     public Collection<Film> search(String query) {
         return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
     }
 
+
+    public Collection<Film> findFilmsByDirectorId(Integer directorId) {
+        var filmAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_FILMS_BY_DIRECTOR_ID, directorId);
+        List<Film> films = new ArrayList<>();
+        while (filmAsRowSet.next()) {
+            films.add(getFilmById(filmAsRowSet.getInt("id")).orElseThrow());
+        }
+        return films;
+    }
+
+    @Override      
     public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
         var filmsAsRowSet = jdbcTemplate.queryForRowSet(SQL_SELECT_COMMON_FILMS_IDS_BETWEEN_TWO_USERS, userId, friendId);
         List<Film> films = new ArrayList<>();
@@ -145,12 +168,14 @@ public class FilmDbStorage implements FilmStorage {
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
                 .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
 
-        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(FIND_ALL_LIKES_SQL, film.getId());
+        SqlRowSet likesAsRowSet = jdbcTemplate.queryForRowSet(SQL_FIND_ALL_LIKES, film.getId());
         Set<Integer> likes = new HashSet<>();
         while (likesAsRowSet.next()) {
-            Integer likeId = likesAsRowSet.getInt("id");
+            Integer likeId = likesAsRowSet.getInt("user_id");
+
             likes.add(likeId);
         }
         film.setLikes(likes);

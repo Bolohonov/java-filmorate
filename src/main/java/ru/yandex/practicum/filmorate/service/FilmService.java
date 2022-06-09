@@ -86,8 +86,8 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public Collection<Film> getFilmsByLikes(Integer count) {
-        return likesStorage.getFilmsByLikes(count);
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
+        return likesStorage.getFilmsByLikes(count, genre, year);
     }
 
     public List<Film> getCommonFilms(Integer userId, Integer friendId) {
@@ -119,6 +119,7 @@ public class FilmService {
         return true;
     }
 
+
     public Collection<Film> search(String query, String by) {
         List<String> list = Arrays.stream(by.split(","))
                 .map(String::toLowerCase)
@@ -133,6 +134,25 @@ public class FilmService {
             return filmStorage.search(query);
         }
         throw new FunctionalityNotSupportedException("Функциональность не разработана");
+    }
+
+
+    public List<Film> getFilmsByDirectorSortedByLikeOrYear(Integer directorId, String sortBy) {
+        Collection<Film> films = filmStorage.findFilmsByDirectorId(directorId);
+        switch (sortBy) {
+            case "likes":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                        .collect(toList());
+            case "year":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getReleaseDate().getYear() - o1.getReleaseDate().getYear())
+                        .collect(toList());
+        }
+        log.warn("Кто-то пытается отсортировать фильмы режиссера не по году или лайкам");
+        throw new IllegalArgumentException("Oops! Сортирует только по year или likes.");
     }
 
 }
