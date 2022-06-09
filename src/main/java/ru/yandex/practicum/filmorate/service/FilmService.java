@@ -4,15 +4,20 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exceptions.FunctionalityNotSupportedException;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
@@ -86,8 +91,21 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public Collection<Film> getFilmsByLikes(Integer count) {
-        return likesStorage.getFilmsByLikes(count);
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genreId, Integer year) {
+        return likesStorage.getFilmsByLikes(count, genreId, year);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Optional<User> user = userService.getUserById(userId);
+        Optional<User> friend = userService.getUserById(friendId);
+        if (user.isPresent() && friend.isPresent()) {
+            return filmStorage
+                    .getCommonFilmsBetweenTwoUsers(userId, friendId)
+                    .stream()
+                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                    .collect(toList());
+        }
+        return new ArrayList<>();
     }
 
     private boolean validateFilm(Film film) {
@@ -105,4 +123,29 @@ public class FilmService {
         }
         return true;
     }
+
+
+    public Collection<Film> search(String query, String by) {
+            return filmStorage.search(query, by);
+    }
+
+
+    public List<Film> getFilmsByDirectorSortedByLikeOrYear(Integer directorId, String sortBy) {
+        Collection<Film> films = filmStorage.findFilmsByDirectorId(directorId);
+        switch (sortBy) {
+            case "likes":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                        .collect(toList());
+            case "year":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getReleaseDate().getYear() - o1.getReleaseDate().getYear())
+                        .collect(toList());
+        }
+        log.warn("Кто-то пытается отсортировать фильмы режиссера не по году или лайкам");
+        throw new IllegalArgumentException("Oops! Сортирует только по year или likes.");
+    }
+
 }
