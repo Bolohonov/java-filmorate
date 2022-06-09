@@ -81,24 +81,38 @@ class FilmDbStorageTest {
 
     @Test
     void testSearchSort() {
-        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("film");
+        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("film", "title");
         Assertions.assertEquals(10, list.get(0).getId());
         Assertions.assertEquals(20, list.get(1).getId());
         Assertions.assertEquals(30, list.get(2).getId());
-        Assertions.assertEquals(40, list.get(3).getId());
-        Assertions.assertEquals(50, list.get(4).getId());
+        Assertions.assertEquals(50, list.get(3).getId());
+        Assertions.assertEquals(40, list.get(4).getId());
         Assertions.assertEquals(60, list.get(5).getId());
     }
 
     @Test
     void testSearchStandard() {
-        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("film1");
+        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("film1", "title");
         Assertions.assertEquals(1, list.size());
         Assertions.assertEquals(10, list.get(0).getId());
     }
 
     @Test
     void testSearchEmpty() {
-        Assertions.assertEquals(0, filmDbStorage.search("not a movie").size());
+        Assertions.assertEquals(0, filmDbStorage.search("not a movie", "title").size());
+    }
+
+    @Test
+    void testSearchTitleDirector() {
+        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("fil", "title,director");
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(10, list.get(0).getId());
+    }
+
+    @Test
+    void testSearchDirector() {
+        ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("Иван", "director");
+        Assertions.assertEquals(1, list.size());
+        Assertions.assertEquals(60, list.get(0).getId());
     }
 }

@@ -16,7 +16,7 @@ public interface FilmStorage {
 
     Optional<Film> getFilmById(Integer id);
 
-    Collection<Film> search(String query);
+    Collection<Film> search(String query, String by);
 
     Collection<Film> findFilmsByDirectorId(Integer directorId);
 

@@ -121,19 +121,7 @@ public class FilmService {
 
 
     public Collection<Film> search(String query, String by) {
-        List<String> list = Arrays.stream(by.split(","))
-                .map(String::toLowerCase)
-                .collect(Collectors.toList());
-        if (list.contains("director") && list.contains("title")) {
-            throw new FunctionalityNotSupportedException("Функциональность не разработана");
-        }
-        if (list.contains("director")) {
-            throw new FunctionalityNotSupportedException("Функциональность не разработана");
-        }
-        if (list.contains("title")) {
-            return filmStorage.search(query);
-        }
-        throw new FunctionalityNotSupportedException("Функциональность не разработана");
+            return filmStorage.search(query, by);
     }
 
 
