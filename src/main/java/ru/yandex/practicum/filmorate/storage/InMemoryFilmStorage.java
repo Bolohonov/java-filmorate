@@ -53,7 +53,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> search(String query) {
+    public Collection<Film> search(String query, String by) {
         return null;
     }
 
@@ -63,7 +63,6 @@ public class InMemoryFilmStorage implements FilmStorage {
   
     @Override
     public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
-
         return null;
     }
 

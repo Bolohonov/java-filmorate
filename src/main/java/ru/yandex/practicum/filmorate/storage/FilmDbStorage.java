@@ -7,12 +7,14 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.FunctionalityNotSupportedException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.sql.*;
 import java.sql.Date;
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component("filmDbStorage")
@@ -33,11 +35,28 @@ public class FilmDbStorage implements FilmStorage {
     private static final String SQL_SELECT_WITH_ID =
             "select id, rate, name, description, release_date, duration, mpa, director_id " +
                     "from film where id = ?";
-
-
-    
+    private static final String SQL_SEARCH_DIRECTOR_TITLE =
+            "select * " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN DIRECTOR D on FILM.DIRECTOR_ID = D.ID " +
+                    "WHERE D.NAME ilike ? AND FILM.NAME ilike ? " +
+                    "GROUP BY film.id order by likes_COUNT desc";
+    private static final String SQL_SEARCH_DIRECTOR =
+            "select * " +
+                    "from FILM " +
+                    "LEFT JOIN " +
+                    "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
+                    "           FROM film AS f " +
+                    "           LEFT JOIN Likes AS l ON f.id = l.film_id GROUP BY f.id) as LC ON FILM.ID = LC.ID " +
+                    "LEFT JOIN DIRECTOR D on FILM.DIRECTOR_ID = D.ID " +
+                    "WHERE D.NAME ilike ? " +
+                    "GROUP BY film.id order by likes_COUNT desc";
     private static final String SQL_SEARCH_TITLE =
-            "select *" +
+            "select * " +
                     "from FILM " +
                     "LEFT JOIN " +
                     "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
@@ -115,7 +134,7 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration().toSeconds(),
                 film.getMpa().getId(),
-                film.getDirector(),
+                film.getDirector().getId(),
                 film.getId());
         return film;
     }
@@ -134,8 +153,20 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> search(String query) {
-        return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
+    public Collection<Film> search(String query, String by) {
+        List<String> list = Arrays.stream(by.split(","))
+                .map(String::toLowerCase)
+                .collect(Collectors.toList());
+        if (list.contains("director") && list.contains("title")) {
+            return jdbcTemplate.query(SQL_SEARCH_DIRECTOR_TITLE, this::mapRowToFilm, "%" + query + "%", "%" + query + "%");
+        }
+        if (list.contains("director")) {
+            return jdbcTemplate.query(SQL_SEARCH_DIRECTOR, this::mapRowToFilm, "%" + query + "%");
+        }
+        if (list.contains("title")) {
+            return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
+        }
+        throw new FunctionalityNotSupportedException("Функциональность не поддерживается");
     }
 
 

@@ -10,8 +10,11 @@ insert into USER_FILMORATE (ID, NAME, LOGIN, EMAIL, BIRTHDAY)
 values (50, 'Test5Name', 'Test5Login', 'test5@yandex.ru', '2015-09-01');
 insert into USER_FILMORATE (ID, NAME, LOGIN, EMAIL, BIRTHDAY)
 values (60, 'Test0Name', 'Test0Login', 'test0@yandex.ru', '2000-09-01');
-insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
-values (10, 'Film1Name', 'Test1Desc', '2001-02-03', 150, 2, 1);
+insert into DIRECTOR(NAME)
+values ( 'fil' ),
+       ('Иванов');
+insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
+values (10, 'Film1Name', 'Test1Desc', '2001-02-03', 150, 2, 1, 1);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (20, 'Film2Name', 'Test2Desc', '2002-03-04', 160, 3, 2);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
@@ -20,8 +23,8 @@ insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (40, 'Film4Name', 'Test4Desc', '2004-06-06', 190, 5, 4);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (50, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3);
-insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
-values (60, 'Film6Name', 'Test6Desc', '2003-08-06', 110, 1, 1);
+insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
+values (60, 'Film6Name', 'Test6Desc', '2003-08-06', 110, 1, 1, 2);
 INSERT INTO mpa (title) VALUES ('G');
 INSERT INTO mpa (title) VALUES ('PG');
 INSERT INTO mpa (title) VALUES ('PG_13');
