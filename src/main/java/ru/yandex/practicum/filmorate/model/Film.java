@@ -29,5 +29,7 @@ public class Film {
     private Duration duration;
     @JsonDeserialize(using = MpaDeSerializer.class)
     private Mpa mpa;
+    private Director director;
     private Set<Integer> likes = new HashSet<>();
+
 }
