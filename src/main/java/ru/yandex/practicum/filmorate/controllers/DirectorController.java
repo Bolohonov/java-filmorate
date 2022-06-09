@@ -25,7 +25,7 @@ public class DirectorController {
     public Director findDirectorById(@PathVariable Integer id) {
         return directorService.findDirectorById(id)
                 .orElseThrow(() -> {
-                    log.warn("director with id {} not found", id);
+                    log.warn("режиссер с id {} не найден", id);
                     throw new ResponseStatusException(NOT_FOUND);
                 });
     }
@@ -46,8 +46,8 @@ public class DirectorController {
     @ResponseStatus(OK)
     public Director updateDirector(@RequestBody Director director) {
         return directorService.updateDirector(director).orElseThrow(() -> {
-            log.warn("director with id {} not found for updating", director.getId());
-            throw new ResponseStatusException(NOT_FOUND);
+            log.warn("режиссер с id {} не найден для обновления", director.getId());
+            throw new ResponseStatusException(BAD_REQUEST);
         });
     }
 
@@ -55,8 +55,8 @@ public class DirectorController {
     @ResponseStatus(NO_CONTENT)
     public void deleteDirector(@PathVariable Integer id) {
         if (!directorService.deleteDirector(id)) {
-            log.warn("director with id {} not found for updating", id);
-            throw new ResponseStatusException(NOT_FOUND);
+            log.warn("режиссер с id {} не найден для удаления", id);
+            throw new ResponseStatusException(BAD_REQUEST);
         }
     }
 }
