@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 
@@ -20,15 +21,17 @@ public class FilmService {
     private final UserService userService;
 
     private final LikesStorage likesStorage;
+    private final EventStorage eventStorage;
     private static final LocalDate FIRST_FILM_DATE
             = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
-                       LikesStorage likesStorage) {
+                       LikesStorage likesStorage, EventStorage eventStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likesStorage = likesStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -68,6 +71,7 @@ public class FilmService {
     public Optional<Film> addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.addLike(filmId, userId);
+            eventStorage.addEvent(userId, filmId, "LIKE", "ADD");
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
@@ -76,6 +80,7 @@ public class FilmService {
     public Optional<Film> removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.removeLike(filmId, userId);
+            eventStorage.addEvent(userId, filmId, "LIKE", "REMOVE");
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);

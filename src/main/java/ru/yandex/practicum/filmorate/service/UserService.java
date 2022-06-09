@@ -6,7 +6,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -18,11 +20,14 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final EventStorage eventStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
+                       EventStorage eventStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.eventStorage = eventStorage;
     }
 
     public Collection<User> getUsers() {
@@ -68,12 +73,14 @@ public class UserService {
         } else {
             log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
         }
+        eventStorage.addEvent(user.getId(), friendId, "FRIEND", "ADD");
         return user;
     }
 
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
+        eventStorage.addEvent(user.getId(), friendId, "FRIEND", "REMOVE");
         return user;
     }
 
@@ -112,5 +119,9 @@ public class UserService {
             }
         }
         return true;
+    }
+
+    public Collection<Event> getEventsForUser(int id) {
+        return eventStorage.getEventsForUser(id);
     }
 }
