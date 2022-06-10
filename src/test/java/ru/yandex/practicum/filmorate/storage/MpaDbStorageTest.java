@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -18,7 +18,7 @@ class MpaDbStorageTest {
 
     @Test
     void getNewMpaObject() {
-        Mpa mpa = filmStorage.getFilmById(30).get().getMpa();
+        Mpa mpa = filmStorage.getFilmById(1003).get().getMpa();
         Mpa newMpa = mpaStorage.getNewMpaObject(4);
         assertTrue(mpa.getId() == newMpa.getId());
     }

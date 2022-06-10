@@ -5,9 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DuplicateKeyException;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
@@ -15,7 +12,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Optional;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
@@ -26,53 +23,53 @@ class UserDbStorageTest {
 
     @Test
     public void testFindUserById() {
-        Optional<User> userOptional = userDbStorage.findUserById(10);
+        Optional<User> userOptional = userDbStorage.findUserById(1001);
 
         assertThat(userOptional)
                 .isPresent()
                 .hasValueSatisfying(user ->
-                        assertThat(user).hasFieldOrPropertyWithValue("id", 10)
+                        assertThat(user).hasFieldOrPropertyWithValue("id", 1001)
                 );
     }
 
     @Test
     void testGetUsers() {
         Collection<User> users = userDbStorage.getUsers();
-        assertThat(users).contains(userDbStorage.findUserById(10).get(), userDbStorage.findUserById(20).get(),
-                userDbStorage.findUserById(30).get(), userDbStorage.findUserById(40).get(),
-                userDbStorage.findUserById(50).get());
+        assertThat(users).contains(userDbStorage.findUserById(1001).get(), userDbStorage.findUserById(1002).get(),
+                userDbStorage.findUserById(1003).get(), userDbStorage.findUserById(1004).get(),
+                userDbStorage.findUserById(1005).get());
     }
 
     @Test
     void testAddUser() throws Exception {
         User newUser = User.builder()
-                .email("Test6@yandex.ru")
+                .email("ForAdd@yandex.ru")
                 .login("Test6Login")
                 .name("Test6Name")
                 .birthday(LocalDate.of(2010, 11, 5))
                 .build();
         userDbStorage.addUser(newUser);
-        assertThat(userDbStorage.findUserById(1))
-                .isPresent()
-                .isEqualTo(Optional.of(newUser));
+        assertThat(userDbStorage.getUsers().contains(newUser));
     }
 
     @Test
     void testDeleteUser() {
-        userDbStorage.deleteUser(60);
+        userDbStorage.deleteUser(1006);
         assertThrows(
                 UserNotFoundException.class,
-                () -> userDbStorage.findUserById(60)
+                () -> userDbStorage.findUserById(1006)
         );
     }
 
     @Test
     void testUpdateUser() {
-        User newUser = userDbStorage.findUserById(10).get();
-        newUser.setName("NewTestName");
-        userDbStorage.updateUser(newUser);
-        assertThat(userDbStorage.findUserById(10))
+        Optional<User> userOptional = userDbStorage.findUserById(1001);
+        userOptional.get().setName("NewUpdateName");
+        userDbStorage.updateUser(userOptional.get());
+        assertThat(userOptional)
                 .isPresent()
-                .isEqualTo(Optional.of(newUser));
+                .hasValueSatisfying(user ->
+                        assertThat(user).hasFieldOrPropertyWithValue("name", "NewUpdateName")
+                );
     }
 }

@@ -21,42 +21,42 @@ class FriendsDbStorageTest {
 
     @Test
     void addToFriends() {
-        friendsDbStorage.addToFriends(40, 10);
-        assertThat(friendsDbStorage.getUserFriends(40).contains(userDbStorage.findUserById(10)));
-        assertThat(!friendsDbStorage.getUserFriends(10).contains(userDbStorage.findUserById(40)));
+        friendsDbStorage.addToFriends(1004, 1001);
+        assertThat(friendsDbStorage.getUserFriends(1004).contains(userDbStorage.findUserById(1001)));
+        assertThat(!friendsDbStorage.getUserFriends(1001).contains(userDbStorage.findUserById(1004)));
     }
 
     @Test
     void removeFriend() {
-        friendsDbStorage.removeFriend(50, 40);
-        assertThat(!friendsDbStorage.getUserFriends(10).contains(userDbStorage.findUserById(40)));
+        friendsDbStorage.removeFriend(1005, 1004);
+        assertThat(!friendsDbStorage.getUserFriends(1001).contains(userDbStorage.findUserById(1004)));
     }
 
     @Test
     void getUserFriends() {
-        Collection<User> userFriends = friendsDbStorage.getUserFriends(20);
+        Collection<User> userFriends = friendsDbStorage.getUserFriends(1002);
         assertThat(userFriends).contains(
-                userDbStorage.findUserById(30).get(),
-                userDbStorage.findUserById(40).get(),
-                userDbStorage.findUserById(50).get()
+                userDbStorage.findUserById(1003).get(),
+                userDbStorage.findUserById(1004).get(),
+                userDbStorage.findUserById(1005).get()
         );
         assertThat(userFriends).doesNotContain(
-                userDbStorage.findUserById(10).get(),
-                userDbStorage.findUserById(20).get()
+                userDbStorage.findUserById(1001).get(),
+                userDbStorage.findUserById(1002).get()
         );
     }
 
     @Test
     void getMatchingFriends() {
-        Collection<User> userFriends = friendsDbStorage.getMatchingFriends(10, 20);
+        Collection<User> userFriends = friendsDbStorage.getMatchingFriends(1001, 1002);
         assertTrue(userFriends.contains(
-                userDbStorage.findUserById(30).get()
+                userDbStorage.findUserById(1003).get()
         ));
         assertThat(userFriends).doesNotContain(
-                userDbStorage.findUserById(10).get(),
-                userDbStorage.findUserById(20).get(),
-                userDbStorage.findUserById(40).get(),
-                userDbStorage.findUserById(50).get()
+                userDbStorage.findUserById(1001).get(),
+                userDbStorage.findUserById(1002).get(),
+                userDbStorage.findUserById(1004).get(),
+                userDbStorage.findUserById(1005).get()
         );
     }
 }

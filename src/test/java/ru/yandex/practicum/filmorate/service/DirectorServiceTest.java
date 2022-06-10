@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Director;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -23,7 +22,7 @@ class DirectorServiceTest {
     void test0createDirector() {
         Director director = Director.builder().name("Dir1").build();
         directorService.createDirector(director);
-        assertThat(directorService.findAllDirectors()).hasSize(1);
+        assertThat(directorService.findAllDirectors().contains(director));
     }
 
     @Test
@@ -51,7 +50,9 @@ class DirectorServiceTest {
         Director director3 = Director.builder().name("Dir3").build();
         directorService.createDirector(director3);
 
-        assertThat(directorService.findAllDirectors()).hasSize(3);
+        assertThat(directorService.findAllDirectors().contains(director1));
+        assertThat(directorService.findAllDirectors().contains(director2));
+        assertThat(directorService.findAllDirectors().contains(director3));
     }
 
     @Test
@@ -61,10 +62,12 @@ class DirectorServiceTest {
         Director director2 = Director.builder().name("Dir2").build();
         director2 = directorService.createDirector(director2);
 
-        assertThat(directorService.findAllDirectors()).hasSize(2);
+        assertThat(directorService.findAllDirectors().contains(director1));
+        assertThat(directorService.findAllDirectors().contains(director2));
 
         assertThat(directorService.deleteDirector(director1.getId())).isTrue();
 
-        assertThat(directorService.findAllDirectors()).hasSize(1);
+        assertThat(!directorService.findAllDirectors()
+                .contains(director1));
     }
 }
