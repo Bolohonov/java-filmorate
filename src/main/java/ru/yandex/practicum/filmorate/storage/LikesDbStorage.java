@@ -44,7 +44,8 @@ public class LikesDbStorage implements LikesStorage {
 
 
     private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE_AND_YEAR =
-            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+            "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA, " +
+                    "DIRECTOR_ID " +
                     "from FILM " +
                     "LEFT JOIN " +
                     "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
@@ -56,6 +57,7 @@ public class LikesDbStorage implements LikesStorage {
                     "GROUP BY film.id order by likes_COUNT desc limit ?";
     private static final String SQL_SELECT_FILMS_BY_LIKES_BY_GENRE =
             "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "DIRECTOR_ID " +
                     "from FILM " +
                     "LEFT JOIN " +
                     "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
@@ -68,6 +70,7 @@ public class LikesDbStorage implements LikesStorage {
 
     private static final String SQL_SELECT_FILMS_BY_LIKES_BY_YEAR =
             "select FILM.ID, FILM.NAME, FILM.DESCRIPTION, FILM.RELEASE_DATE, FILM.DURATION, FILM.RATE, FILM.MPA " +
+                    "DIRECTOR_ID " +
                     "from FILM " +
                     "LEFT JOIN " +
                     "    (SELECT f.id, count(l.USER_ID) as likes_COUNT " +
@@ -198,7 +201,7 @@ public class LikesDbStorage implements LikesStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
-                .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .mpa(mpaDbStorage.getMpaById(resultSet.getInt("mpa")).get())
                 .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
 

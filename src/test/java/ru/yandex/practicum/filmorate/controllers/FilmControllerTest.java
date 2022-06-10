@@ -21,7 +21,6 @@ import java.util.List;
 import static java.net.URI.create;
 import static java.time.Duration.ofSeconds;
 import static java.time.LocalDate.of;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;

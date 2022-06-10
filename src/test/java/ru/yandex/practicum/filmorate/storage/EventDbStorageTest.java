@@ -24,14 +24,14 @@ public class EventDbStorageTest {
 
     @Test
     void getEventsForUserTest() {
-        Collection<Event> events = eventDbStorage.getFeedForUser(10);
+        Collection<Event> events = eventDbStorage.getFeedForUser(1001);
         assertThat(events).hasSize(3);
     }
 
     @Test
     void addEventTest() {
-        eventDbStorage.addEvent(30, 3, "LIKE", "ADD");
-        assertThat(eventDbStorage.getFeedForUser(10)).hasSize(4);
+        eventDbStorage.addEvent(1002, 1005, "LIKE", "ADD");
+        assertThat(eventDbStorage.getFeedForUser(1001)).hasSize(4);
     }
 
 }

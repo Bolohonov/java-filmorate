@@ -32,6 +32,8 @@ public class EventDbStorage implements EventStorage {
     private static final String SQL_INSERT_EVENT =
             "INSERT INTO event(event_time, user_id, event_type, operation, entity_id ) " +
                     "VALUES (?, ?, ?, ?, ?)";
+    private  final String SQL_SELECT = "SELECT id FROM event " +
+            "WHERE user_id = ? AND event_type = ? AND operation = ? AND entity_id = ?";
 
     public EventDbStorage(JdbcTemplate jdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
@@ -39,8 +41,12 @@ public class EventDbStorage implements EventStorage {
 
     @Override
     public void addEvent(int userId, int entityId, String eventType, String operation) {
-        jdbcTemplate.update(SQL_INSERT_EVENT, Timestamp.valueOf(LocalDateTime.now()), userId, eventType, operation, entityId);
-        log.warn("Событие {} для пользователя {} записано", eventType, userId);
+        if (!isEventExist(userId, entityId, eventType, operation)) {
+            jdbcTemplate.update(SQL_INSERT_EVENT, Timestamp.valueOf(LocalDateTime.now()), userId, eventType, operation, entityId);
+            log.warn("Событие {} для пользователя {} записано", eventType, userId);
+        } else {
+            log.warn("Cобытие уже записано");
+        }
     }
 
     @Override
@@ -57,5 +63,15 @@ public class EventDbStorage implements EventStorage {
                 .operation(OperationType.valueOf(rs.getString("operation")))
                 .entityId(rs.getInt("entity_id"))
                 .build();
+    }
+
+    private boolean isEventExist(int userId, int entityId, String eventType, String operation) {
+        int count = 0;
+        try {
+            count = jdbcTemplate.queryForObject(SQL_SELECT, Integer.class, userId, eventType, operation, entityId);
+        } catch (Exception exp) {
+            log.warn(exp.getMessage());
+        }
+        return count > 0;
     }
 }
