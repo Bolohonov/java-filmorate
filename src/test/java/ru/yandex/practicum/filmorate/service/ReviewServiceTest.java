@@ -13,8 +13,12 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Duration;
+import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.function.Supplier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -29,120 +33,80 @@ class ReviewServiceTest {
     @Autowired
     private ReviewService reviewService;
 
-    private static Film film1;
-    private static Film film2;
-    private static Film film3;
-    private static User user1;
-    private static User user2;
-    private static User user3;
-    private static User user4;
+    private Supplier<User> userSupplier = () -> {
+        return User.builder()
+                .name("User")
+                .login("User" + System.currentTimeMillis())
+                .email("user" + System.currentTimeMillis() + "@mail.com")
+                .birthday(LocalDate.of(1990, 12, 2))
+                .build();
+    };
 
-
-    @BeforeAll
-    public static void beforeAllReviewDBStorageTests() {
-        film1 = Film.builder()
-                .name("Film_1")
-                .description("Description for Film_1")
-                .duration(Duration.ofMinutes(90))
-                .rate(4)
-                .releaseDate(LocalDate.parse("2021-12-16"))
+    private Supplier<Film> filmSupplier = () -> {
+        return Film.builder()
+                .name("Film" + System.currentTimeMillis())
+                .description("Desc")
+                .releaseDate(LocalDate.of(1950, 12, 2))
+                .duration(Duration.ofSeconds(1500))
                 .mpa(new Mpa(1, "G"))
+                .likes(new HashSet<>())
                 .build();
-
-        film2 = Film.builder()
-                .name("Film_2")
-                .description("Description for Film_2")
-                .duration(Duration.ofMinutes(90))
-                .rate(4)
-                .releaseDate(LocalDate.parse("2021-12-16"))
-                .mpa(new Mpa(1, "G"))
-                .build();
-
-        film3 = Film.builder()
-                .name("Film_3")
-                .description("Description for Film_3")
-                .duration(Duration.ofMinutes(90))
-                .rate(4)
-                .releaseDate(LocalDate.parse("2021-12-16"))
-                .mpa(new Mpa(1, "G"))
-                .build();
-
-        user1 = User.builder()
-                .name("User_1")
-                .login("User1login")
-                .email("user1@mail.com")
-                .birthday(LocalDate.parse("1992-12-16"))
-                .build();
-
-        user2 = User.builder()
-                .name("User_2")
-                .login("User2login")
-                .email("user2@mail.com")
-                .birthday(LocalDate.parse("1992-12-16"))
-                .build();
-
-        user3 = User.builder()
-                .name("User_3")
-                .login("User3login")
-                .email("user3@mail.com")
-                .birthday(LocalDate.parse("1992-12-16"))
-                .build();
-
-        user4 = User.builder()
-                .name("User_4")
-                .login("User4login")
-                .email("user4@mail.com")
-                .birthday(LocalDate.parse("1992-12-16"))
-                .build();
-    }
+    };
 
     @Test
     public void reviewCreate() {
-        filmService.addFilm(film1);
-        userService.addUser(user1);
+        User user = userService.addUser(userSupplier.get());
+        Film film = filmService.addFilm(filmSupplier.get());
 
         assertDoesNotThrow(() -> {
             reviewService.addReview(Review.builder()
                     .content("Review 1")
                     .isPositive(true)
-                    .filmId(film1.getId())
-                    .userId(user1.getId())
+                    .filmId(film.getId())
+                    .userId(user.getId())
                     .build());
         });
     }
 
     @Test
     public void reviewAlreadyExists() {
-        assertThrows(ReviewAlreadyExistException.class,
-                () -> {
-                    reviewService.addReview(Review.builder()
-                            .content("Review 1")
-                            .isPositive(true)
-                            .filmId(film1.getId())
-                            .userId(user1.getId())
-                            .build());
-                });
+        Film film = filmService.addFilm(filmSupplier.get());
+        User user = userService.addUser(userSupplier.get());
+        Review review = Review.builder()
+                .content("Test")
+                .isPositive(true)
+                .filmId(film.getId())
+                .userId(user.getId())
+                .build();
+
+        reviewService.addReview(review);
+
+        assertThrows(ReviewAlreadyExistException.class, () -> reviewService.addReview(review));
     }
 
     @Test
     public void reviewCreateFailFilmId() {
+        User user = userService.addUser(userSupplier.get());
+
         assertThrows(FilmNotFoundException.class, () -> {
             reviewService.addReview(Review.builder()
                     .content("Review 1")
                     .isPositive(true)
                     .filmId(Integer.MAX_VALUE)
-                    .userId(user1.getId())
+                    .userId(user.getId())
                     .build());
         });
     }
 
     @Test
     public void reviewCreateFailUserId() {
+        Film film = filmService.addFilm(filmSupplier.get());
+
         assertThrows(UserNotFoundException.class, () -> {
             reviewService.addReview(Review.builder()
                     .content("Review 1")
                     .isPositive(true)
-                    .filmId(film1.getId())
+                    .filmId(film.getId())
                     .userId(Integer.MAX_VALUE)
                     .build());
         });
@@ -150,13 +114,14 @@ class ReviewServiceTest {
 
     @Test
     public void reviewUpdate() {
-        userService.addUser(user2);
+        User user = userService.addUser(userSupplier.get());
+        Film film = filmService.addFilm(filmSupplier.get());
 
         Review review = reviewService.addReview(Review.builder()
-                .content("Review ")
+                .content("Review")
                 .isPositive(true)
-                .filmId(film1.getId())
-                .userId(user2.getId())
+                .filmId(film.getId())
+                .userId(user.getId())
                 .build());
 
         String updatedContent = "Updated content";
@@ -168,9 +133,7 @@ class ReviewServiceTest {
                         reviewService.updateReview(review);
                     });
                 },
-                () -> {
-                    assertEquals(reviewService.findById(review.getId()).getContent(), updatedContent);
-                },
+                () -> assertEquals(reviewService.findById(review.getId()).getContent(), updatedContent),
                 () -> {
                     assertThrows(ReviewNotFoundException.class, () -> {
                         review.setId(Integer.MAX_VALUE);
@@ -182,95 +145,87 @@ class ReviewServiceTest {
 
     @Test
     public void getReviewById() {
-        filmService.addFilm(film2);
+        User user = userService.addUser(userSupplier.get());
+        Film film = filmService.addFilm(filmSupplier.get());
+
         Review review = reviewService.addReview(Review.builder()
                 .content("getReviewById test ")
                 .isPositive(true)
-                .filmId(film2.getId())
-                .userId(user1.getId())
+                .filmId(film.getId())
+                .userId(user.getId())
                 .build());
 
         assertAll(
-                () -> {
-                    assertEquals(review, reviewService.findById(review.getId()));
-                },
-                () -> {
-                    assertThrows(ReviewNotFoundException.class,
-                            () -> {
-                                reviewService.findById(Integer.MAX_VALUE);
-                            });
-                }
+                () -> assertEquals(review, reviewService.findById(review.getId())),
+                () -> assertThrows(ReviewNotFoundException.class, () -> reviewService.findById(Integer.MAX_VALUE))
         );
     }
 
     @Test
     public void deleteReviewById() {
-        filmService.addFilm(film2);
+        Film film = filmService.addFilm(filmSupplier.get());
+        User user = userService.addUser(userSupplier.get());
+
         Review review = reviewService.addReview(Review.builder()
                 .content("getReviewById test ")
                 .isPositive(true)
-                .filmId(film2.getId())
-                .userId(user2.getId())
+                .filmId(film.getId())
+                .userId(user.getId())
                 .build());
 
         reviewService.deleteReviewById(review.getId());
 
-        assertThrows(ReviewNotFoundException.class,
-                () -> {
-                    reviewService.findById(review.getId());
-                }
-        );
+        assertThrows(ReviewNotFoundException.class, () -> reviewService.findById(review.getId()));
     }
 
     @Test
     public void getAllReviewsByFilmId() {
-        filmService.addFilm(film3);
+        Film film = filmService.addFilm(filmSupplier.get());
+        User user1 = userService.addUser(userSupplier.get());
+        User user2 = userService.addUser(userSupplier.get());
+        List<Review> reviewCheckList = new ArrayList<>();
 
-        Review review1 = reviewService.addReview(Review.builder()
+        reviewCheckList.add(reviewService.addReview(Review.builder()
                 .content("getReviewById test ")
                 .isPositive(true)
-                .filmId(film3.getId())
-                .userId(user2.getId())
-                .build());
-
-        Review review2 = reviewService.addReview(Review.builder()
-                .content("getReviewById test ")
-                .isPositive(true)
-                .filmId(film3.getId())
+                .filmId(film.getId())
                 .userId(user1.getId())
-                .build());
+                .build()));
 
-        List<Review> checkList = List.of(review1, review2);
+        reviewCheckList.add(reviewService.addReview(Review.builder()
+                .content("getReviewById test ")
+                .isPositive(true)
+                .filmId(film.getId())
+                .userId(user2.getId())
+                .build()));
 
-        assertEquals(checkList, reviewService.getAllReviewsByFilmId(film3.getId(), 10));
+        assertEquals(reviewCheckList, reviewService.getAllReviewsByFilmId(film.getId(), 10));
     }
 
     @Test
     public void addLikeOrDeleteLikeReview() {
-        userService.addUser(user3);
-        filmService.addFilm(film3);
+        Film film = filmService.addFilm(filmSupplier.get());
+        User user = userService.addUser(userSupplier.get());
 
         Review review = reviewService.addReview(Review.builder()
-                .content("getReviewById test ")
+                .content("test")
                 .isPositive(true)
-                .filmId(film3.getId())
-                .userId(user3.getId())
+                .filmId(film.getId())
+                .userId(user.getId())
                 .build());
 
         assertAll(
                 () -> {
-                    reviewService.addLikeReview(review.getId(), user3.getId());
+                    reviewService.addLikeReview(review.getId(), user.getId());
                     assertEquals(reviewService.findById(review.getId()).getUseful(), 1);
                 },
                 () -> {
                     assertThrows(UsefulAlreadyExistsException.class,
-                            () -> {
-                                reviewService.addLikeReview(review.getId(), user3.getId());
-                            }
+                            () -> reviewService.addLikeReview(review.getId(), user.getId())
                     );
                 },
                 () -> {
-                    reviewService.deleteLikeReview(review.getId(), user3.getId());
+                    reviewService.deleteLikeReview(review.getId(), user.getId());
                     assertEquals(reviewService.findById(review.getId()).getUseful(), 0);
                 }
         );
@@ -278,30 +233,30 @@ class ReviewServiceTest {
 
     @Test
     public void addDislikeOrDeleteDislikeReview() {
-        userService.addUser(user4);
-        filmService.addFilm(film3);
+        User user = userService.addUser(userSupplier.get());
+        Film film = filmService.addFilm(filmSupplier.get());
 
         Review review = reviewService.addReview(Review.builder()
                 .content("getReviewById test ")
                 .isPositive(true)
-                .filmId(film3.getId())
-                .userId(user4.getId())
+                .filmId(film.getId())
+                .userId(user.getId())
                 .build());
 
         assertAll(
                 () -> {
-                    reviewService.addDislikeReview(review.getId(), user4.getId());
+                    reviewService.addDislikeReview(review.getId(), user.getId());
                     assertEquals(reviewService.findById(review.getId()).getUseful(), -1);
                 },
                 () -> {
                     assertThrows(UsefulAlreadyExistsException.class,
                             () -> {
-                                reviewService.addDislikeReview(review.getId(), user4.getId());
+                                reviewService.addDislikeReview(review.getId(), user.getId());
                             }
                     );
                 },
                 () -> {
-                    reviewService.deleteDislikeReview(review.getId(), user4.getId());
+                    reviewService.deleteDislikeReview(review.getId(), user.getId());
                     assertEquals(reviewService.findById(review.getId()).getUseful(), 0);
                 }
         );

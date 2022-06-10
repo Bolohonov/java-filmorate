@@ -90,7 +90,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     CONSTRAINT pk_reviews PRIMARY KEY (
         review_id
     ),
-    CONSTRAINT uq_reviews_combination_user_id_and_film_id UNIQUE(user_id, film_id)
+    CONSTRAINT uq_reviews_combination_user_identifier_and_film_identifier UNIQUE(user_id, film_id)
 );
 
 CREATE TABLE IF NOT EXISTS review_usefuls (
@@ -102,16 +102,16 @@ CREATE TABLE IF NOT EXISTS review_usefuls (
      )
 );
 
-ALTER TABLE reviews ADD CONSTRAINT IF NOT EXISTS fk_reviews_user_id FOREIGN KEY(user_id)
+ALTER TABLE reviews ADD CONSTRAINT IF NOT EXISTS fk_reviews_user_identifier FOREIGN KEY(user_id)
 REFERENCES user_filmorate (id) ON DELETE CASCADE;
 
-ALTER TABLE reviews ADD CONSTRAINT IF NOT EXISTS fk_reviews_film_id FOREIGN KEY(film_id)
+ALTER TABLE reviews ADD CONSTRAINT IF NOT EXISTS fk_reviews_film_identifier FOREIGN KEY(film_id)
 REFERENCES film (id) ON DELETE CASCADE;
 
-ALTER TABLE review_usefuls ADD CONSTRAINT IF NOT EXISTS fk_review_usefuls_review_id FOREIGN KEY(review_id)
+ALTER TABLE review_usefuls ADD CONSTRAINT IF NOT EXISTS fk_review_usefuls_review_identifier FOREIGN KEY(review_id)
 REFERENCES reviews (review_id) ON DELETE CASCADE;
 
-ALTER TABLE review_usefuls ADD CONSTRAINT IF NOT EXISTS fk_review_usefuls_user_id FOREIGN KEY(user_id)
+ALTER TABLE review_usefuls ADD CONSTRAINT IF NOT EXISTS fk_review_usefuls_user_identifier FOREIGN KEY(user_id)
 REFERENCES user_filmorate (id) ON DELETE CASCADE;
 
 

@@ -55,11 +55,11 @@ public class ReviewDBStorage implements ReviewStorage {
             review.setId(reviewId);
         } catch (DataIntegrityViolationException e) {
             String message = e.getMessage();
-            if (message.contains("FK_REVIEWS_USER_ID")) {
+            if (message.contains("FK_REVIEWS_USER_IDENTIFIER")) {
                 throw new UserNotFoundException("User with id:" + review.getUserId() + " not found");
-            } else if (message.contains("FK_REVIEWS_FILM_ID")) {
+            } else if (message.contains("FK_REVIEWS_FILM_IDENTIFIER")) {
                 throw new FilmNotFoundException("Film with id:" + review.getFilmId() + " not found");
-            } else if (message.contains("UQ_REVIEWS_COMBINATION_USER_ID_AND_FILM_ID")) {
+            } else if (message.contains("UQ_REVIEWS_COMBINATION_USER_IDENTIFIER_AND_FILM_IDENTIFIER")) {
                 throw new ReviewAlreadyExistException("Review from user with id:" + review.getUserId() +
                         " for film with id:" + review.getFilmId() + " already exists");
             }
@@ -142,9 +142,9 @@ public class ReviewDBStorage implements ReviewStorage {
 
             if (message.contains("PRIMARY_KEY")) {
                 throw new UsefulAlreadyExistsException("User's reaction to the review already exists");
-            } else if (message.contains("FK_REVIEW_USEFULS_USER_ID")) {
+            } else if (message.contains("FK_REVIEW_USEFULS_USER_IDENTIFIER")) {
                 throw new UserNotFoundException("User with id:" + userId + " not found");
-            } else if (message.contains("FK_REVIEW_USEFULS_REVIEW_ID")){
+            } else if (message.contains("FK_REVIEW_USEFULS_REVIEW_IDENTIFIER")){
                 throw new ReviewNotFoundException("Review with id:" + reviewId + " not found");
             }
         }
