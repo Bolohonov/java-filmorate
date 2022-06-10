@@ -5,10 +5,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
-
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Director;
-
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -20,8 +18,6 @@ import java.util.List;
 import static java.time.Duration.ofSeconds;
 import static java.time.LocalDate.of;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-
 import static ru.yandex.practicum.filmorate.model.Film.builder;
 
 @SpringBootTest
@@ -49,9 +45,12 @@ class FilmServiceTest {
                     .build()));
         }
 
-        User user1 = User.builder().birthday(of(2000, 1, 1)).name("user1").login("login1").email("email1@ya.ru").build();
-        User user2 = User.builder().birthday(of(2000, 1, 1)).name("user2").login("login2").email("email2@ya.ru").build();
-        User user3 = User.builder().birthday(of(2000, 1, 1)).name("user3").login("login3").email("email3@ya.ru").build();
+        User user1 = User.builder().birthday(of(2000, 1, 1)).name("user1").login("login1")
+                .email("email1@ya.ru").build();
+        User user2 = User.builder().birthday(of(2000, 1, 1)).name("user2").login("login2")
+                .email("email2@ya.ru").build();
+        User user3 = User.builder().birthday(of(2000, 1, 1)).name("user3").login("login3")
+                .email("email3@ya.ru").build();
 
         user1 = userService.addUser(user1);
         user2 = userService.addUser(user2);

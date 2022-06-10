@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -13,7 +12,6 @@ import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -145,6 +143,8 @@ class ReviewServiceTest {
 
     @Test
     public void getReviewById() {
+        filmService.deleteFilm(10);
+        userService.deleteUser(10);
         User user = userService.addUser(userSupplier.get());
         Film film = filmService.addFilm(filmSupplier.get());
 
@@ -180,9 +180,8 @@ class ReviewServiceTest {
 
     @Test
     public void getAllReviewsByFilmId() {
-        Film film = filmService.addFilm(filmSupplier.get());
         User user1 = userService.addUser(userSupplier.get());
-        User user2 = userService.addUser(userSupplier.get());
+        Film film = filmService.addFilm(filmSupplier.get());
         List<Review> reviewCheckList = new ArrayList<>();
 
         reviewCheckList.add(reviewService.addReview(Review.builder()
@@ -191,12 +190,11 @@ class ReviewServiceTest {
                 .filmId(film.getId())
                 .userId(user1.getId())
                 .build()));
-
         reviewCheckList.add(reviewService.addReview(Review.builder()
                 .content("getReviewById test ")
                 .isPositive(true)
                 .filmId(film.getId())
-                .userId(user2.getId())
+                .userId(userService.addUser(userSupplier.get()).getId())
                 .build()));
 
         assertEquals(reviewCheckList, reviewService.getAllReviewsByFilmId(film.getId(), 10));
