@@ -1,16 +1,12 @@
 insert into DIRECTOR(NAME)
 values ( 'fil' ),
        ('Иванов');
-INSERT INTO mpa (title) VALUES ('G');
-INSERT INTO mpa (title) VALUES ('PG');
-INSERT INTO mpa (title) VALUES ('PG_13');
-INSERT INTO mpa (title) VALUES ('R');
-INSERT INTO mpa (title) VALUES ('NC_17');
-INSERT INTO mpa (title) VALUES ('NR');
-insert into GENRE (ID, NAME)
-values (1,'Комедия'),
-       (2, 'Ужас'),
-       (3, 'Драма');
+INSERT INTO mpa (NAME) VALUES ('G');
+INSERT INTO mpa (NAME) VALUES ('PG');
+INSERT INTO mpa (NAME) VALUES ('PG_13');
+INSERT INTO mpa (NAME) VALUES ('R');
+INSERT INTO mpa (NAME) VALUES ('NC_17');
+INSERT INTO mpa (NAME) VALUES ('NR');
 insert into FILM_GENRE (FILM_ID, GENRE_ID) values ( 1001, 1 );
 insert into FILM_GENRE (FILM_ID, GENRE_ID) values ( 1006, 1 );
 insert into FILM_GENRE (FILM_ID, GENRE_ID) values ( 1007, 2 );

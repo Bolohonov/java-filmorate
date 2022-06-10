@@ -25,14 +25,12 @@ class DirectorServiceTest {
         assertThat(directorService.findAllDirectors().contains(director));
     }
 
-    @Test
     void test10findDirectorById() {
         Director director = Director.builder().name("Dir1").build();
         director = directorService.createDirector(director);
         assertThat(directorService.findDirectorById(director.getId())).isNotEmpty();
     }
 
-    @Test
     void test20updateDirector() {
         Director director = Director.builder().name("Dir1").build();
         directorService.createDirector(director);
@@ -41,7 +39,6 @@ class DirectorServiceTest {
         assertThat(directorService.updateDirector(director).get().getName()).isEqualTo(director.getName());
     }
 
-    @Test
     void test30findAllDirectors() {
         Director director1 = Director.builder().name("Dir1").build();
         directorService.createDirector(director1);
@@ -55,7 +52,6 @@ class DirectorServiceTest {
         assertThat(directorService.findAllDirectors().contains(director3));
     }
 
-    @Test
     void test40deleteDirector() {
         Director director1 = Director.builder().name("Dir1").build();
         director1 = directorService.createDirector(director1);
