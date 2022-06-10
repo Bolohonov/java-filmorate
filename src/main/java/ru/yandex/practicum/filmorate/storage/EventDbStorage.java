@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.sql.ResultSet;
@@ -41,9 +43,9 @@ public class EventDbStorage implements EventStorage {
                 id(rs.getInt("id"))
                 .timestamp(rs.getTimestamp("event_time").toLocalDateTime())
                 .userId(rs.getInt("user_id"))
-                .eventType(rs.getString("event_type"))
+                .eventType(EventType.valueOf(rs.getString("event_type")))
+                .operation(OperationType.valueOf(rs.getString("operation")))
                 .entityId(rs.getInt("entity_id"))
-                .operation(rs.getString("operation"))
                 .build();
     }
 }

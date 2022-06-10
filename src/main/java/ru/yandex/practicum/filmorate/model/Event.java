@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.Builder;
 import lombok.Data;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 
 import java.time.LocalDateTime;
 
@@ -9,10 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 public class Event {
 
-    int id;
-    LocalDateTime timestamp;
-    int userId;
-    String eventType;
-    String operation;
-    int entityId;
+    private int id;
+    private LocalDateTime timestamp;
+    private int userId;
+    private EventType eventType;
+    private OperationType operation;
+    private int entityId;
 }
