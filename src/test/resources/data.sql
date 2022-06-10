@@ -40,12 +40,12 @@ values (1004, 'Film4Name', 'Test4Desc', '2004-06-06', 190, 5, 4);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (1005, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
+
 values (1006, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3, 1);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
 values (1007, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3, 2);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
 values (1008, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3, 2);
-
 
 insert into FRIENDS (FIRST_USER_ID, SECOND_USER_ID, ACCEPT_FIRST, ACCEPT_SECOND)
 values (1001,1002,true, false);
@@ -74,7 +74,9 @@ values (1002,1003);
 insert into LIKES (FILM_ID, USER_ID)
 values (1003,1001);
 insert into LIKES (FILM_ID, USER_ID)
+
 values (1003,1003);
+
 
 insert into LIKES (FILM_ID, USER_ID)
 values (1005,1002);

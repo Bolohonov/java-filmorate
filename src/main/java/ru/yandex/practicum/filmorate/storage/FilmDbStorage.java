@@ -83,10 +83,6 @@ public class FilmDbStorage implements FilmStorage {
                     "FROM likes\n" +
                     "WHERE user_id = ?;";
 
-
-
-    
-
     public FilmDbStorage(JdbcTemplate jdbcTemplate, MpaStorage mpaDbStorage, DirectorDbStorage directorDbStorage) {
         this.jdbcTemplate = jdbcTemplate;
         this.mpaDbStorage = mpaDbStorage;
@@ -198,7 +194,7 @@ public class FilmDbStorage implements FilmStorage {
                 .description(resultSet.getString("description"))
                 .releaseDate(resultSet.getDate("release_date").toLocalDate())
                 .duration(Duration.ofSeconds(resultSet.getInt("duration")))
-                .mpa(mpaDbStorage.getNewMpaObject(resultSet.getInt("mpa")))
+                .mpa(mpaDbStorage.getMpaById(resultSet.getInt("mpa")).get())
                 .director(directorDbStorage.findDirectorById(resultSet.getInt("director_id")).orElse(null))
                 .build();
 

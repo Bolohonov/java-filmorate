@@ -19,6 +19,6 @@ public class MpaDeSerializer extends JsonDeserializer<Mpa> {
             throws IOException, JacksonException {
         JsonNode node = jp.getCodec().readTree(jp);
         int id = (Integer) (node.get("id")).numberValue();
-        return mpaDbStorage.getNewMpaObject(id);
+        return mpaDbStorage.getMpaById(id).get();
     }
 }
