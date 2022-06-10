@@ -74,18 +74,18 @@ public class UserService {
             throw new UserNotFoundException("Пользователь не найден");
         }
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
+            eventStorage.addEvent(user.getId(), friendId, "FRIEND", "ADD");
             log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
             log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
         }
-        eventStorage.addEvent(user.getId(), friendId, "FRIEND", "ADD");
         return user;
     }
 
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
-        log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         eventStorage.addEvent(user.getId(), friendId, "FRIEND", "REMOVE");
+        log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }
 

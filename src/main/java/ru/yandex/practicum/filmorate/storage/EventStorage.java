@@ -8,5 +8,5 @@ public interface EventStorage {
 
     void addEvent(int userId, int entityId, String eventType, String operation);
 
-    Collection<Event> getEventsForUser(int id);
+    Collection<Event> getFeedForUser(int id);
 }

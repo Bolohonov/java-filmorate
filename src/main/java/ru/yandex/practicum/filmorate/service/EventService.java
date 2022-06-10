@@ -24,10 +24,10 @@ public class EventService {
         this.userStorage = userStorage;
     }
 
-    public Collection<Event> getEventsForUser(int id) {
-        if (!userStorage.findUserById(id).isPresent()) {
+    public Collection<Event> getFeedForUser(int id) {
+        if (userStorage.findUserById(id).isEmpty()) {
             throw new UserNotFoundException("Пользователь не найден");
         }
-        return eventStorage.getEventsForUser(id);
+        return eventStorage.getFeedForUser(id);
     }
 }
