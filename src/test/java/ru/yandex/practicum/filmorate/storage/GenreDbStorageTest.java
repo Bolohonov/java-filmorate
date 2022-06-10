@@ -15,25 +15,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
-class MpaDbStorageTest {
-    private final MpaStorage mpaStorage;
+class GenreDbStorageTest {
+    private final GenreStorage genreStorage;
 
     @Test
-    void getAllMpa() {
-        assertThat(mpaStorage.getAllMpa().size() == 5);
+    void getAllGenre() {
+        assertThat(genreStorage.getAllGenres().size() == 6);
     }
 
     @Test
     void getMpaById() {
-        Optional<Mpa> mpaOptional = mpaStorage.getMpaById(1);
+        Optional<Genre> genreOptional = genreStorage.getGenreById(1);
 
-        assertThat(mpaOptional)
+        assertThat(genreOptional)
                 .isPresent()
-                .hasValueSatisfying(mpa ->
-                        assertThat(mpa).hasFieldOrPropertyWithValue("id", 1)
+                .hasValueSatisfying(genre ->
+                        assertThat(genre).hasFieldOrPropertyWithValue("id", 1)
+
                 )
-                .hasValueSatisfying(mpa ->
-                        assertThat(mpa).hasFieldOrPropertyWithValue("name", "G")
+                .hasValueSatisfying(genre ->
+                        assertThat(genre).hasFieldOrPropertyWithValue("name", "Комедия")
+
                 );
     }
+
 }

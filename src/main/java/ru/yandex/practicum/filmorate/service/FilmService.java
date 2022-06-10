@@ -4,31 +4,41 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
+import ru.yandex.practicum.filmorate.exceptions.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
+import ru.yandex.practicum.filmorate.storage.MpaStorage;
 
 import java.time.LocalDate;
 import java.util.*;
+
+import static java.util.stream.Collectors.toList;
 
 @Slf4j
 @Service
 public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
-
     private final LikesStorage likesStorage;
+    private final MpaStorage mpaStorage;
+    private final GenreStorage genreStorage;
     private static final LocalDate FIRST_FILM_DATE
             = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
-                       LikesStorage likesStorage) {
+                       LikesStorage likesStorage, MpaStorage mpaStorage, GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likesStorage = likesStorage;
+        this.mpaStorage = mpaStorage;
+        this.genreStorage = genreStorage;
     }
 
     public Collection<Film> getFilms() {
@@ -58,10 +68,6 @@ public class FilmService {
     }
 
     public Optional<Film> getFilmById(Integer id) {
-        if (!filmStorage.getFilmById(id).isPresent()) {
-            throw new UserNotFoundException("Фильм не найден");
-        }
-        log.warn("Get user with ID {}", id);
         return filmStorage.getFilmById(id);
     }
 
@@ -81,8 +87,21 @@ public class FilmService {
         return filmStorage.getFilmById(filmId);
     }
 
-    public Collection<Film> getFilmsByLikes(Integer count) {
-        return likesStorage.getFilmsByLikes(count);
+    public Collection<Film> getFilmsByLikes(Integer count, Integer genre, Integer year) {
+        return likesStorage.getFilmsByLikes(count, genre, year);
+    }
+
+    public List<Film> getCommonFilms(Integer userId, Integer friendId) {
+        Optional<User> user = userService.getUserById(userId);
+        Optional<User> friend = userService.getUserById(friendId);
+        if (user.isPresent() && friend.isPresent()) {
+            return filmStorage
+                    .getCommonFilmsBetweenTwoUsers(userId, friendId)
+                    .stream()
+                    .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                    .collect(toList());
+        }
+        return new ArrayList<>();
     }
 
     private boolean validateFilm(Film film) {
@@ -99,5 +118,51 @@ public class FilmService {
             throw new ValidationException("Указана отрицательная продолжительность.");
         }
         return true;
+    }
+
+
+    public Collection<Film> search(String query, String by) {
+            return filmStorage.search(query, by);
+    }
+
+
+    public List<Film> getFilmsByDirectorSortedByLikeOrYear(Integer directorId, String sortBy) {
+        Collection<Film> films = filmStorage.findFilmsByDirectorId(directorId);
+        switch (sortBy) {
+            case "likes":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getLikes().size() - o1.getLikes().size())
+                        .collect(toList());
+            case "year":
+                return films
+                        .stream()
+                        .sorted((o1, o2) -> o2.getReleaseDate().getYear() - o1.getReleaseDate().getYear())
+                        .collect(toList());
+        }
+        log.warn("Кто-то пытается отсортировать фильмы режиссера не по году или лайкам");
+        throw new IllegalArgumentException("Oops! Сортирует только по year или likes.");
+    }
+
+    public Collection<Mpa> getAllMpa() {
+        return mpaStorage.getAllMpa();
+    }
+
+    public Optional<Mpa> getMpaById(Integer mpaId) {
+        if (mpaId > 0 && mpaId <= mpaStorage.getAllMpa().size()) {
+            log.warn("Получение объекта mpa");
+            return mpaStorage.getMpaById(mpaId);
+        } else {
+            throw new MpaNotFoundException("Такого mpa_id не существует");
+        }
+    }
+
+    public Collection<Genre> getAllGenres() {
+        return genreStorage.getAllGenres();
+    }
+
+    public Optional<Genre> getGenreById(Integer genreId) {
+        log.warn("Получение genre");
+        return genreStorage.getGenreById(genreId);
     }
 }

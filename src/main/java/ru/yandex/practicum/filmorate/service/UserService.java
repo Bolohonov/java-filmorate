@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -18,11 +20,14 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final LikesStorage likesStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
+                       LikesStorage likesStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.likesStorage = likesStorage;
     }
 
     public Collection<User> getUsers() {
@@ -38,10 +43,6 @@ public class UserService {
     }
 
     public Optional<User> getUserById(Integer userId) {
-        if (!userStorage.findUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
-        }
-        log.warn("Get user with ID {}", userId);
         return userStorage.findUserById(userId);
     }
 
@@ -112,5 +113,12 @@ public class UserService {
             }
         }
         return true;
+    }
+
+    public Collection<Film> getRecommendations(Integer userId) {
+        if (!userStorage.findUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        return likesStorage.getRecommendations(userId);
     }
 }

@@ -78,7 +78,7 @@ public class UserDbStorage implements UserStorage {
     public Optional<User> findUserById(Integer id) {
         Optional<User> user;
         try {
-            user = Optional.of(jdbcTemplate.queryForObject(SQL_SELECT_FIND_USER, this::mapRowToUser, id));
+            user = Optional.ofNullable(jdbcTemplate.queryForObject(SQL_SELECT_FIND_USER, this::mapRowToUser, id));
         } catch (Exception exp) {
             log.warn("Пользователь с id {} не найден", id);
             throw new UserNotFoundException(exp.getMessage());
