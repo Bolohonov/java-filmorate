@@ -127,11 +127,7 @@ class FilmDbStorageTest {
     @Test
     void testSearchSort() {
         ArrayList<Film> list = (ArrayList<Film>) filmDbStorage.search("Film", "title");
-        System.out.println(list.get(0));
-        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!1");
-
-
-        assertThat(list.get(0)).hasFieldOrPropertyWithValue("name","Film5Name");
+        assertThat(list.get(0)).hasFieldOrPropertyWithValue("name","Film3Name");
     }
 
     @Test

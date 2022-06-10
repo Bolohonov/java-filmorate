@@ -52,21 +52,20 @@ class LikesDbStorageTest {
     @Test
     void getFilmsByLikesGenreAndYear() {
         List<Film> list = (List<Film>) likesDbStorage.getFilmsByLikes(3,1, 2001);
-        assertEquals(1006, list.get(0).getId());
+        assertEquals(1001, list.get(0).getId());
     }
 
     @Test
     void getFilmsByLikesGenre() {
         List<Film> list = (List<Film>) likesDbStorage.getFilmsByLikes(5,2, 0);
-        assertEquals(20, list.get(0).getId());
+        assertEquals(1007, list.get(0).getId());
     }
 
     @Test
     void getFilmsByLikesYear() {
         List<Film> list = (List<Film>) likesDbStorage.getFilmsByLikes(5,0, 2004);
         assertEquals(1003, list.get(0).getId());
-        assertEquals(1004, list.get(1).getId());
-        assertEquals(1005, list.get(2).getId());
+        assertEquals(1005, list.get(1).getId());
     }
 
     @Test
