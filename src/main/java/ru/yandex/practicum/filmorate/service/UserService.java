@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Event;
@@ -70,7 +72,7 @@ public class UserService {
             throw new UserNotFoundException("Пользователь не найден");
         }
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
-            eventStorage.addEvent(user.getId(), friendId, "FRIEND", "ADD");
+            eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.ADD);
             log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
             log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
@@ -80,7 +82,7 @@ public class UserService {
 
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
-        eventStorage.addEvent(user.getId(), friendId, "FRIEND", "REMOVE");
+        eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.REMOVE);
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }

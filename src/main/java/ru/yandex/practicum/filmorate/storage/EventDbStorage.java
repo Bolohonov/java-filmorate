@@ -32,7 +32,7 @@ public class EventDbStorage implements EventStorage {
     private static final String SQL_INSERT_EVENT =
             "INSERT INTO event(event_time, user_id, event_type, operation, entity_id ) " +
                     "VALUES (?, ?, ?, ?, ?)";
-    private  final String SQL_SELECT = "SELECT id FROM event " +
+    private final String SQL_SELECT = "SELECT id FROM event " +
             "WHERE user_id = ? AND event_type = ? AND operation = ? AND entity_id = ?";
 
     public EventDbStorage(JdbcTemplate jdbcTemplate) {
@@ -40,9 +40,10 @@ public class EventDbStorage implements EventStorage {
     }
 
     @Override
-    public void addEvent(int userId, int entityId, String eventType, String operation) {
+    public void addEvent(int userId, int entityId, EventType eventType, OperationType operation) {
         if (!isEventExist(userId, entityId, eventType, operation)) {
-            jdbcTemplate.update(SQL_INSERT_EVENT, Timestamp.valueOf(LocalDateTime.now()), userId, eventType, operation, entityId);
+            jdbcTemplate.update(SQL_INSERT_EVENT, Timestamp.valueOf(LocalDateTime.now()), userId, eventType.name(),
+                    operation.name(), entityId);
             log.warn("Событие {} для пользователя {} записано", eventType, userId);
         } else {
             log.warn("Событие уже записано");
@@ -65,10 +66,11 @@ public class EventDbStorage implements EventStorage {
                 .build();
     }
 
-    private boolean isEventExist(int userId, int entityId, String eventType, String operation) {
+    private boolean isEventExist(int userId, int entityId, EventType eventType, OperationType operation) {
         int count = 0;
         try {
-            count = jdbcTemplate.queryForObject(SQL_SELECT, Integer.class, userId, eventType, operation, entityId);
+            count = jdbcTemplate.queryForObject(SQL_SELECT, Integer.class, userId, eventType.name(), operation.name(),
+                    entityId);
         } catch (Exception exp) {
             log.warn(exp.getMessage());
         }

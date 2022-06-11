@@ -8,6 +8,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.model.Event;
 
 import java.util.Collection;
@@ -30,7 +32,7 @@ public class EventDbStorageTest {
 
     @Test
     void addEventTest() {
-        eventDbStorage.addEvent(1002, 1005, "LIKE", "ADD");
+        eventDbStorage.addEvent(1002, 1005, EventType.LIKE, OperationType.ADD);
         assertThat(eventDbStorage.getFeedForUser(1001)).hasSize(4);
     }
 

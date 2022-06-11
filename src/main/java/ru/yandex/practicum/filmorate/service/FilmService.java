@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
@@ -79,7 +81,7 @@ public class FilmService {
     public Optional<Film> addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.addLike(filmId, userId);
-            eventStorage.addEvent(userId, filmId, "LIKE", "ADD");
+            eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
@@ -88,7 +90,7 @@ public class FilmService {
     public Optional<Film> removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.removeLike(filmId, userId);
-            eventStorage.addEvent(userId, filmId, "LIKE", "REMOVE");
+            eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);

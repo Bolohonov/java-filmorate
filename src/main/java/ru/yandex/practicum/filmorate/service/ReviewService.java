@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.ReviewStorage;
@@ -28,13 +30,13 @@ public class ReviewService {
     public Review addReview(Review review) {
         log.info("Add {}", review);
         Review rew = reviewStorage.add(review);
-        eventStorage.addEvent(review.getUserId(), review.getId(), "REVIEW", "ADD");
+        eventStorage.addEvent(review.getUserId(), review.getId(), EventType.REVIEW, OperationType.ADD);
         return rew;
     }
 
     public Review updateReview(Review review) {
         Review rew = reviewStorage.update(review);
-        eventStorage.addEvent(review.getUserId(), review.getId(), "REVIEW", "UPDATE");
+        eventStorage.addEvent(review.getUserId(), review.getId(), EventType.REVIEW, OperationType.UPDATE);
         log.info("Update review with id:{} on {}", review.getId(), review);
 
         return rew;
@@ -42,7 +44,7 @@ public class ReviewService {
 
     public Map<String, String> deleteReviewById(int id) {
         Map<String, String> map = reviewStorage.deleteReviewById(id);
-        eventStorage.addEvent(findById(id).getUserId(), id, "REMOVE", "ADD");
+        eventStorage.addEvent(findById(id).getUserId(), id, EventType.REVIEW, OperationType.REMOVE);
         log.info("Delete review with id:{}", id);
 
         return map;
