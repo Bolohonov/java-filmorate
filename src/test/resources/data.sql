@@ -34,6 +34,7 @@ values (1003, 'Film3Name', 'Test3Desc', '2004-05-06', 190, 5, 4);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (1004, 'Film4Name', 'Test4Desc', '2004-06-06', 190, 5, 4);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
+
 values (1005, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA, DIRECTOR_ID)
 
