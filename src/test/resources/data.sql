@@ -22,6 +22,8 @@ insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (50, 'Film5Name', 'Test5Desc', '2004-08-06', 190, 4, 3);
 insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
 values (60, 'Film6Name', 'Test6Desc', '2003-08-06', 110, 1, 1);
+insert into FILM (ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, RATE, MPA)
+values (70, 'Film6Name', 'Test6Desc', '2003-08-06', 110, 1, 1);
 INSERT INTO mpa (title) VALUES ('G');
 INSERT INTO mpa (title) VALUES ('PG');
 INSERT INTO mpa (title) VALUES ('PG_13');
