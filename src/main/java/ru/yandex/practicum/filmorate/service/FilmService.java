@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.MpaNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
@@ -26,17 +29,21 @@ public class FilmService {
     private final FilmStorage filmStorage;
     private final UserService userService;
     private final LikesStorage likesStorage;
+    private final EventStorage eventStorage;
     private final MpaStorage mpaStorage;
     private final GenreStorage genreStorage;
+
     private static final LocalDate FIRST_FILM_DATE
             = LocalDate.of(1895, 12, 28);
 
     @Autowired
     public FilmService(@Qualifier("filmDbStorage") FilmStorage filmStorage, UserService userService,
-                       LikesStorage likesStorage, MpaStorage mpaStorage, GenreStorage genreStorage) {
+                       LikesStorage likesStorage, EventStorage eventStorage, MpaStorage mpaStorage,
+                       GenreStorage genreStorage) {
         this.filmStorage = filmStorage;
         this.userService = userService;
         this.likesStorage = likesStorage;
+        this.eventStorage = eventStorage;
         this.mpaStorage = mpaStorage;
         this.genreStorage = genreStorage;
     }
@@ -74,6 +81,7 @@ public class FilmService {
     public Optional<Film> addLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.addLike(filmId, userId);
+            eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
             log.warn("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
@@ -82,6 +90,7 @@ public class FilmService {
     public Optional<Film> removeLike(Integer filmId, Integer userId) {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.removeLike(filmId, userId);
+            eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
             log.warn("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
