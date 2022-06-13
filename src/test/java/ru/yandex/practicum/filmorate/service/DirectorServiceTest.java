@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.util.NoSuchElementException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
@@ -27,14 +28,14 @@ class DirectorServiceTest {
         directorService.createDirector(director);
         assertThat(directorService.findAllDirectors().contains(director));
     }
-
+  
     @Test
     void test10findDirectorById() {
         Director director = Director.builder().name("Dir1").build();
         director = directorService.createDirector(director);
         assertThat(directorService.findDirectorById(director.getId())).isNotEmpty();
     }
-
+  
     @Test
     void test20updateDirector() {
         Director director = Director.builder().name("Dir1").build();
@@ -53,7 +54,7 @@ class DirectorServiceTest {
 
         assertThatThrownBy(() -> directorService.updateDirector(director2.getId(), director2)).isInstanceOf(NoSuchElementException.class);
     }
-
+  
     @Test
     void test30findAllDirectors() {
         Director director1 = Director.builder().name("Dir1").build();
@@ -67,7 +68,7 @@ class DirectorServiceTest {
         assertThat(directorService.findAllDirectors().contains(director2));
         assertThat(directorService.findAllDirectors().contains(director3));
     }
-
+  
     @Test
     void test40deleteDirector() {
         Director director1 = Director.builder().name("Dir1").build();
@@ -80,6 +81,7 @@ class DirectorServiceTest {
 
         assertThat(directorService.deleteDirector(director1.getId())).isTrue();
 
-        assertThat(!directorService.findAllDirectors().contains(director1));
+        assertThat(!directorService.findAllDirectors()
+                .contains(director1));
     }
 }

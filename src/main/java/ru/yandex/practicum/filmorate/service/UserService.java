@@ -4,10 +4,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
 import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
@@ -20,14 +24,17 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final EventStorage eventStorage;
     private final LikesStorage likesStorage;
 
     @Autowired
     public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
-                       LikesStorage likesStorage) {
+                       EventStorage eventStorage, LikesStorage likesStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.eventStorage = eventStorage;
         this.likesStorage = likesStorage;
+  
     }
 
     public Collection<User> getUsers() {
@@ -43,10 +50,6 @@ public class UserService {
     }
 
     public Optional<User> getUserById(Integer userId) {
-        if (!userStorage.findUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
-        }
-        log.warn("Get user with ID {}", userId);
         return userStorage.findUserById(userId);
     }
 
@@ -69,6 +72,7 @@ public class UserService {
             throw new UserNotFoundException("Пользователь не найден");
         }
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
+            eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.ADD);
             log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
             log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
@@ -78,6 +82,7 @@ public class UserService {
 
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
+        eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.REMOVE);
         log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }
