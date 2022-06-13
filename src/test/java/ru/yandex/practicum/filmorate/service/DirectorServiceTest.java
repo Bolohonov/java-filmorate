@@ -8,8 +8,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -23,7 +25,7 @@ class DirectorServiceTest {
     void test0createDirector() {
         Director director = Director.builder().name("Dir1").build();
         directorService.createDirector(director);
-        assertThat(directorService.findAllDirectors()).hasSize(1);
+        assertThat(directorService.findAllDirectors().contains(director));
     }
 
     @Test
@@ -36,10 +38,20 @@ class DirectorServiceTest {
     @Test
     void test20updateDirector() {
         Director director = Director.builder().name("Dir1").build();
-        directorService.createDirector(director);
+        director = directorService.createDirector(director);
         director.setName("NewName");
 
-        assertThat(directorService.updateDirector(director).get().getName()).isEqualTo(director.getName());
+        assertThat(directorService.updateDirector(director.getId(), director).get().getName()).isEqualTo(director.getName());
+    }
+
+    @Test
+    void test21updateDirectorIfDirectorNotExistShouldThrowNoSuchElementException() {
+        Director director = Director.builder().name("Dir1").build();
+        directorService.createDirector(director);
+
+        Director director2 = Director.builder().name("NewDirName1").build();
+
+        assertThatThrownBy(() -> directorService.updateDirector(director2.getId(), director2)).isInstanceOf(NoSuchElementException.class);
     }
 
     @Test
@@ -51,7 +63,9 @@ class DirectorServiceTest {
         Director director3 = Director.builder().name("Dir3").build();
         directorService.createDirector(director3);
 
-        assertThat(directorService.findAllDirectors()).hasSize(3);
+        assertThat(directorService.findAllDirectors().contains(director1));
+        assertThat(directorService.findAllDirectors().contains(director2));
+        assertThat(directorService.findAllDirectors().contains(director3));
     }
 
     @Test
@@ -61,10 +75,11 @@ class DirectorServiceTest {
         Director director2 = Director.builder().name("Dir2").build();
         director2 = directorService.createDirector(director2);
 
-        assertThat(directorService.findAllDirectors()).hasSize(2);
+        assertThat(directorService.findAllDirectors().contains(director1));
+        assertThat(directorService.findAllDirectors().contains(director2));
 
         assertThat(directorService.deleteDirector(director1.getId())).isTrue();
 
-        assertThat(directorService.findAllDirectors()).hasSize(1);
+        assertThat(!directorService.findAllDirectors().contains(director1));
     }
 }
