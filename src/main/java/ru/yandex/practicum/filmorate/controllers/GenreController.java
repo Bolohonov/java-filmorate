@@ -28,13 +28,13 @@ public class GenreController {
 
     @GetMapping
     public Collection<Genre> findAll() {
-        log.warn("Get all genres");
+        log.info("Get all genres");
         return filmService.getAllGenres();
     }
 
     @GetMapping("/{genreId}")
     public Optional<Genre> findGenre(@PathVariable("genreId") Integer genreId) {
-        log.warn("Get genre with ID {}", genreId);
+        log.info("Get genre with ID {}", genreId);
         return filmService.getGenreById(genreId);
     }
 }

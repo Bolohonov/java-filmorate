@@ -55,7 +55,7 @@ public class FilmService {
     public Film addFilm(Film film) {
         if (validateFilm(film)) {
             filmStorage.addFilm(film);
-            log.warn("Film has been added");
+            log.info("Film has been added");
         }
         return film;
     }
@@ -64,14 +64,14 @@ public class FilmService {
         if (validateFilm(film)) {
             filmStorage.getFilmById(film.getId());
             filmStorage.updateFilm(film);
-            log.warn("Film has been updated");
+            log.info("Film has been updated");
         }
         return film;
     }
 
     public void deleteFilm(Integer filmId) {
         filmStorage.deleteFilm(filmId);
-        log.warn("Film with ID {} has been deleted", filmId);
+        log.info("Film with ID {} has been deleted", filmId);
     }
 
     public Optional<Film> getFilmById(Integer id) {
@@ -82,7 +82,7 @@ public class FilmService {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.addLike(filmId, userId);
             eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.ADD);
-            log.warn("User {} likes film with ID {}", userId, filmId);
+            log.info("User {} likes film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
     }
@@ -91,7 +91,7 @@ public class FilmService {
         if (userService.getUserById(userId).isPresent() && filmStorage.getFilmById(filmId).isPresent()) {
             likesStorage.removeLike(filmId, userId);
             eventStorage.addEvent(userId, filmId, EventType.LIKE, OperationType.REMOVE);
-            log.warn("User {} remove like from film with ID {}", userId, filmId);
+            log.info("User {} remove like from film with ID {}", userId, filmId);
         }
         return filmStorage.getFilmById(filmId);
     }
@@ -159,7 +159,7 @@ public class FilmService {
 
     public Optional<Mpa> getMpaById(Integer mpaId) {
         if (mpaId > 0 && mpaId <= mpaStorage.getAllMpa().size()) {
-            log.warn("Получение объекта mpa");
+            log.info("Получение объекта mpa");
             return mpaStorage.getMpaById(mpaId);
         } else {
             throw new MpaNotFoundException("Такого mpa_id не существует");
@@ -171,7 +171,7 @@ public class FilmService {
     }
 
     public Optional<Genre> getGenreById(Integer genreId) {
-        log.warn("Получение genre");
+        log.info("Получение genre");
         return genreStorage.getGenreById(genreId);
     }
 }

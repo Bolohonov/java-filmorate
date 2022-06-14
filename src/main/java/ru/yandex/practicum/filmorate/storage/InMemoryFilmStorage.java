@@ -22,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         film.setId(appointId());
         films.put(film.getId(), film);
-        log.warn("Film has been added to storage");
+        log.info("Film has been added to storage");
         return film;
     }
 
@@ -30,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteFilm(Integer filmId) {
         if (films.containsKey(filmId)) {
             films.remove(filmId);
-            log.warn("Film with ID {} has been deleted", filmId);
+            log.info("Film with ID {} has been deleted", filmId);
         } else {
             throw new FilmNotFoundException(String.format("Фильм № %d не найден", filmId));
         }
@@ -39,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         films.put(film.getId(), film);
-        log.warn("Film has been updated in storage");
+        log.info("Film has been updated in storage");
         return film;
     }
 
@@ -68,7 +68,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private boolean checkIdNotDuplicated(int id) {
         if (!films.containsKey(id)) {
-            log.warn("ID has been checked");
+            log.info("ID has been checked");
             return true;
         } else {
             log.warn("Id exists");
