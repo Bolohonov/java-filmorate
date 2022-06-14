@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.enums.EventType;
 import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
-import ru.yandex.practicum.filmorate.model.Event;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.EventStorage;
@@ -44,7 +43,7 @@ public class UserService {
     public User addUser(User user) {
         if (validateUser(user) && validateEmailNotDuplicated(user)) {
             userStorage.addUser(user);
-            log.warn("User has been added");
+            log.info("User has been added");
         }
         return user;
     }
@@ -57,14 +56,14 @@ public class UserService {
         this.getUserById(user.getId());
         if (validateUser(user)) {
             userStorage.updateUser(user);
-            log.warn("User has been updated");
+            log.info("User has been updated");
         }
         return Optional.of(user);
     }
 
     public void deleteUser(Integer userId) {
         userStorage.deleteUser(userId);
-        log.warn("User with ID {} has been deleted", userId);
+        log.info("User with ID {} has been deleted", userId);
     }
 
     public User addToFriends(User user, Integer friendId) {
@@ -73,9 +72,9 @@ public class UserService {
         }
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
             eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.ADD);
-            log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
+            log.info("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
-            log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
+            log.info("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
         }
         return user;
     }
@@ -83,17 +82,17 @@ public class UserService {
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
         eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.REMOVE);
-        log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
+        log.info("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }
 
     public Collection<User> getUserFriends(Integer userId) {
-        log.warn("User with ID {} get friends", userId);
+        log.info("User with ID {} get friends", userId);
         return friendsStorage.getUserFriends(userId);
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
-        log.warn("User with ID {} get matching friends with user {}", id, otherId);
+        log.info("User with ID {} get matching friends with user {}", id, otherId);
         return friendsStorage.getMatchingFriends(id, otherId);
     }
 

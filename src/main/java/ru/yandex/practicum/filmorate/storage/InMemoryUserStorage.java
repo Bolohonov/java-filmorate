@@ -25,7 +25,7 @@ public class InMemoryUserStorage implements UserStorage {
     public User addUser(User user) {
         user.setId(appointId());
         users.put(user.getId(), user);
-        log.warn("User has been added to storage");
+        log.info("User has been added to storage");
         return user;
     }
 
@@ -33,7 +33,7 @@ public class InMemoryUserStorage implements UserStorage {
     public void deleteUser(Integer userId) {
         if (users.containsKey(userId)) {
             users.remove(userId);
-            log.warn("User with ID {} has been deleted", userId);
+            log.info("User with ID {} has been deleted", userId);
         } else {
             throw new UserNotFoundException(String.format("Пользователь № %d не найден", userId));
         }
@@ -42,7 +42,7 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public User updateUser(User user) {
         users.put(user.getId(), user);
-        log.warn("User has been updated in storage");
+        log.info("User has been updated in storage");
         return user;
     }
 
@@ -57,7 +57,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     private boolean checkIdNotDuplicated(int id) {
         if (!users.containsKey(id)) {
-            log.warn("ID has been checked");
+            log.info("ID has been checked");
             return true;
         } else {
             log.warn("Id exists");

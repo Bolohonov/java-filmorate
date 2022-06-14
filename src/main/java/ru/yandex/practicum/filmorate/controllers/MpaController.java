@@ -27,13 +27,13 @@ public class MpaController {
 
     @GetMapping
     public Collection<Mpa> findAll() {
-        log.warn("Get all mpa");
+        log.info("Get all mpa");
         return filmService.getAllMpa();
     }
 
     @GetMapping("/{mpaId}")
     public Optional<Mpa> findMpa(@PathVariable("mpaId") Integer mpaId) {
-        log.warn("Get MPA with ID {}", mpaId);
+        log.info("Get MPA with ID {}", mpaId);
         return filmService.getMpaById(mpaId);
     }
 

@@ -144,7 +144,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     public Collection<User> getUserFriends(Integer userId) {
-        log.warn("User with ID {} get friends", userId);
+        log.info("User with ID {} get friends", userId);
         Collection<User> userFriendsFirst;
         Collection<User> userFriendsSecond;
         String sqlFirst = SQL_FIRST_QUERY_FOR_USER_FRIENDS;
@@ -156,7 +156,7 @@ public class FriendsDbStorage implements FriendsStorage {
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
-        log.warn("User with ID {} get matching friends with user {}", id, otherId);
+        log.info("User with ID {} get matching friends with user {}", id, otherId);
         Collection<User> firstUserFriends = this.getUserFriends(id);
         Collection<User> secondUserFriends = this.getUserFriends(otherId);
         return firstUserFriends

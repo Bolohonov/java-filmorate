@@ -30,43 +30,43 @@ public class FilmController {
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.warn("Get all films");
+        log.info("Get all films");
         return filmService.getFilms();
     }
 
     @GetMapping("/{filmId}")
     public Optional<Film> findFilm(@PathVariable("filmId") Integer filmId) {
-        log.warn("Get film with ID {}", filmId);
+        log.info("Get film with ID {}", filmId);
         return filmService.getFilmById(filmId);
     }
 
     @DeleteMapping("/{filmId}")
     public void deleteFilm(@PathVariable("filmId") Integer filmId) {
         filmService.deleteFilm(filmId);
-        log.warn("Delete film with ID {}", filmId);
+        log.info("Delete film with ID {}", filmId);
     }
 
     @PostMapping
     public Film post(@Valid @RequestBody Film film) {
-        log.warn("Add new film");
+        log.info("Add new film");
         return filmService.addFilm(film);
     }
 
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
-        log.warn("Update film");
+        log.info("Update film");
         return filmService.updateFilm(film);
     }
 
     @PutMapping("/{id}/like/{userId}")
     public Optional<Film> addLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
-        log.warn("Add like to film with ID {}", id);
+        log.info("Add like to film with ID {}", id);
         return filmService.addLike(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
     public Optional<Film> removeLike(@PathVariable("id") Integer id, @PathVariable("userId") Integer userId) {
-        log.warn("Remove like from film with ID {}", id);
+        log.info("Remove like from film with ID {}", id);
         return filmService.removeLike(id, userId);
     }
 
@@ -78,7 +78,7 @@ public class FilmController {
         if (count <= 0 || genreId < 0 || year < 0) {
             throw new IllegalArgumentException();
         }
-        log.warn("Get {} most popular films", count);
+        log.info("Get {} most popular films", count);
         return filmService.getFilmsByLikes(count, genreId, year);
     }
 
