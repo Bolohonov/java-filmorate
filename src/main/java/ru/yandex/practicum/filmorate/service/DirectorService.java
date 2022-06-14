@@ -27,11 +27,13 @@ public class DirectorService {
         return directorDbStorage.findDirectorById(id);
     }
 
-    public Optional<Director> updateDirector(@Valid Director director) {
-        return directorDbStorage.updateDirector(director);
+    public Optional<Director> updateDirector(Integer id, @Valid Director director) {
+        return directorDbStorage.findDirectorById(id)
+                .map(dir -> directorDbStorage.updateDirector(id, director))
+                .orElseThrow();
     }
 
-    public List<Director> findAllDirectors(){
+    public List<Director> findAllDirectors() {
         return directorDbStorage.findAllDirectors();
     }
 

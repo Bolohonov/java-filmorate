@@ -8,7 +8,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.filmorate.model.Director;
 
+import java.util.NoSuchElementException;
+
 import static org.assertj.core.api.Assertions.assertThat;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
@@ -24,21 +28,34 @@ class DirectorServiceTest {
         directorService.createDirector(director);
         assertThat(directorService.findAllDirectors().contains(director));
     }
-
+  
+    @Test
     void test10findDirectorById() {
         Director director = Director.builder().name("Dir1").build();
         director = directorService.createDirector(director);
         assertThat(directorService.findDirectorById(director.getId())).isNotEmpty();
     }
-
+  
+    @Test
     void test20updateDirector() {
         Director director = Director.builder().name("Dir1").build();
-        directorService.createDirector(director);
+        director = directorService.createDirector(director);
         director.setName("NewName");
 
-        assertThat(directorService.updateDirector(director).get().getName()).isEqualTo(director.getName());
+        assertThat(directorService.updateDirector(director.getId(), director).get().getName()).isEqualTo(director.getName());
     }
 
+    @Test
+    void test21updateDirectorIfDirectorNotExistShouldThrowNoSuchElementException() {
+        Director director = Director.builder().name("Dir1").build();
+        directorService.createDirector(director);
+
+        Director director2 = Director.builder().name("NewDirName1").build();
+
+        assertThatThrownBy(() -> directorService.updateDirector(director2.getId(), director2)).isInstanceOf(NoSuchElementException.class);
+    }
+  
+    @Test
     void test30findAllDirectors() {
         Director director1 = Director.builder().name("Dir1").build();
         directorService.createDirector(director1);
@@ -51,7 +68,8 @@ class DirectorServiceTest {
         assertThat(directorService.findAllDirectors().contains(director2));
         assertThat(directorService.findAllDirectors().contains(director3));
     }
-
+  
+    @Test
     void test40deleteDirector() {
         Director director1 = Director.builder().name("Dir1").build();
         director1 = directorService.createDirector(director1);

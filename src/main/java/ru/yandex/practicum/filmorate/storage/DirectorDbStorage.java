@@ -64,11 +64,11 @@ public class DirectorDbStorage implements DirectorStorage {
     }
 
     @Override
-    public Optional<Director> updateDirector(Director director) {
+    public Optional<Director> updateDirector(Integer id, Director director) {
         jdbcTemplate.update(
                 SQL_UPDATE,
                 director.getName(),
-                director.getId()
+                id
         );
         return of(director);
     }

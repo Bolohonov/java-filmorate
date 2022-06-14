@@ -13,7 +13,7 @@ public interface DirectorStorage {
 
     Director addDirector(Director director);
 
-    Optional<Director> updateDirector(Director director);
+    Optional<Director> updateDirector(Integer id, Director director);
 
     boolean deleteDirector(Integer id);
 
