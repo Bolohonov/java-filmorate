@@ -44,7 +44,7 @@ public class EventDbStorage implements EventStorage {
         if (!isEventExist(userId, entityId, eventType, operation)) {
             jdbcTemplate.update(SQL_INSERT_EVENT, Timestamp.valueOf(LocalDateTime.now()), userId, eventType.name(),
                     operation.name(), entityId);
-            log.warn("Событие {} для пользователя {} записано", eventType, userId);
+            log.info("Событие {} для пользователя {} записано", eventType, userId);
         } else {
             log.warn("Событие уже записано");
         }
