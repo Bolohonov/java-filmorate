@@ -154,14 +154,18 @@ public class FilmDbStorage implements FilmStorage {
                 .map(String::toLowerCase)
                 .collect(Collectors.toList());
         if (list.contains("director") && list.contains("title") && list.size() == 2) {
+            log.info("Получение списка фильмов по режиссеру и наименованию. Запрос - {}", query);
             return jdbcTemplate.query(SQL_SEARCH_DIRECTOR_TITLE, this::mapRowToFilm, "%" + query + "%", "%" + query + "%");
         }
         if (list.contains("director") && list.size() == 1) {
+            log.info("Получение списка фильмов по режиссеру. Запрос - {}", query);
             return jdbcTemplate.query(SQL_SEARCH_DIRECTOR, this::mapRowToFilm, "%" + query + "%");
         }
         if (list.contains("title") && list.size() == 1) {
+            log.info("Получение списка фильмов по наименованию. Запрос - {}", query);
             return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
         }
+        log.info("Попытка получения списка фильмов по {}", by);
         throw new FunctionalityNotSupportedException("Функциональность не поддерживается");
     }
 
