@@ -165,7 +165,7 @@ public class FilmDbStorage implements FilmStorage {
             log.info("Получение списка фильмов по наименованию. Запрос - {}", query);
             return jdbcTemplate.query(SQL_SEARCH_TITLE, this::mapRowToFilm, "%" + query + "%");
         }
-        log.info("Попытка получения списка фильмов по {}", by);
+        log.warn("Попытка получения списка фильмов по {}", by);
         throw new FunctionalityNotSupportedException("Функциональность не поддерживается");
     }
 
