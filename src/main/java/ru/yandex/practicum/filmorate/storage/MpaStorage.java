@@ -2,6 +2,10 @@ package ru.yandex.practicum.filmorate.storage;
 
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.util.Collection;
+import java.util.Optional;
+
 public interface MpaStorage {
-    Mpa getNewMpaObject(Integer mpaId);
+    Collection<Mpa> getAllMpa();
+    Optional<Mpa> getMpaById(Integer mpaId);
 }

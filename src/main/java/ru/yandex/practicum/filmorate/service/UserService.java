@@ -4,10 +4,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.enums.EventType;
+import ru.yandex.practicum.filmorate.enums.OperationType;
 import ru.yandex.practicum.filmorate.exceptions.UserNotFoundException;
 import ru.yandex.practicum.filmorate.exceptions.ValidationException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.EventStorage;
 import ru.yandex.practicum.filmorate.storage.FriendsStorage;
+import ru.yandex.practicum.filmorate.storage.LikesStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.time.LocalDate;
@@ -18,11 +23,17 @@ import java.util.*;
 public class UserService {
     private final UserStorage userStorage;
     private final FriendsStorage friendsStorage;
+    private final EventStorage eventStorage;
+    private final LikesStorage likesStorage;
 
     @Autowired
-    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage) {
+    public UserService(@Qualifier("userDbStorage") UserStorage userStorage, FriendsStorage friendsStorage,
+                       EventStorage eventStorage, LikesStorage likesStorage) {
         this.userStorage = userStorage;
         this.friendsStorage = friendsStorage;
+        this.eventStorage = eventStorage;
+        this.likesStorage = likesStorage;
+  
     }
 
     public Collection<User> getUsers() {
@@ -32,16 +43,12 @@ public class UserService {
     public User addUser(User user) {
         if (validateUser(user) && validateEmailNotDuplicated(user)) {
             userStorage.addUser(user);
-            log.warn("User has been added");
+            log.info("User has been added");
         }
         return user;
     }
 
     public Optional<User> getUserById(Integer userId) {
-        if (!userStorage.findUserById(userId).isPresent()) {
-            throw new UserNotFoundException("Пользователь не найден");
-        }
-        log.warn("Get user with ID {}", userId);
         return userStorage.findUserById(userId);
     }
 
@@ -49,14 +56,14 @@ public class UserService {
         this.getUserById(user.getId());
         if (validateUser(user)) {
             userStorage.updateUser(user);
-            log.warn("User has been updated");
+            log.info("User has been updated");
         }
         return Optional.of(user);
     }
 
     public void deleteUser(Integer userId) {
         userStorage.deleteUser(userId);
-        log.warn("User with ID {} has been deleted", userId);
+        log.info("User with ID {} has been deleted", userId);
     }
 
     public User addToFriends(User user, Integer friendId) {
@@ -64,26 +71,28 @@ public class UserService {
             throw new UserNotFoundException("Пользователь не найден");
         }
         if (friendsStorage.addToFriends(user.getId(), friendId)) {
-            log.warn("User with ID {} and ID {} is friends now", friendId, user.getId());
+            eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.ADD);
+            log.info("User with ID {} and ID {} is friends now", friendId, user.getId());
         } else {
-            log.warn("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
+            log.info("User with ID {} and ID {} is NOT friends yet", friendId, user.getId());
         }
         return user;
     }
 
     public User removeFriend(User user, Integer friendId) {
         friendsStorage.removeFriend(user.getId(), friendId);
-        log.warn("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
+        eventStorage.addEvent(user.getId(), friendId, EventType.FRIEND, OperationType.REMOVE);
+        log.info("User with ID {} and ID {} is NOT friends now", friendId, user.getId());
         return user;
     }
 
     public Collection<User> getUserFriends(Integer userId) {
-        log.warn("User with ID {} get friends", userId);
+        log.info("User with ID {} get friends", userId);
         return friendsStorage.getUserFriends(userId);
     }
 
     public Collection<User> getMatchingFriends(Integer id, Integer otherId) {
-        log.warn("User with ID {} get matching friends with user {}", id, otherId);
+        log.info("User with ID {} get matching friends with user {}", id, otherId);
         return friendsStorage.getMatchingFriends(id, otherId);
     }
 
@@ -112,5 +121,12 @@ public class UserService {
             }
         }
         return true;
+    }
+
+    public Collection<Film> getRecommendations(Integer userId) {
+        if (!userStorage.findUserById(userId).isPresent()) {
+            throw new UserNotFoundException("Пользователь не найден");
+        }
+        return likesStorage.getRecommendations(userId);
     }
 }

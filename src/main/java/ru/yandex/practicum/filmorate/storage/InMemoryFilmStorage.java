@@ -5,10 +5,7 @@ import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exceptions.FilmNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Component
@@ -25,7 +22,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public Film addFilm(Film film) {
         film.setId(appointId());
         films.put(film.getId(), film);
-        log.warn("Film has been added to storage");
+        log.info("Film has been added to storage");
         return film;
     }
 
@@ -33,7 +30,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void deleteFilm(Integer filmId) {
         if (films.containsKey(filmId)) {
             films.remove(filmId);
-            log.warn("Film with ID {} has been deleted", filmId);
+            log.info("Film with ID {} has been deleted", filmId);
         } else {
             throw new FilmNotFoundException(String.format("Фильм № %d не найден", filmId));
         }
@@ -42,7 +39,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Film updateFilm(Film film) {
         films.put(film.getId(), film);
-        log.warn("Film has been updated in storage");
+        log.info("Film has been updated in storage");
         return film;
     }
 
@@ -55,9 +52,23 @@ public class InMemoryFilmStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public Collection<Film> search(String query, String by) {
+        return null;
+    }
+
+    public Collection<Film> findFilmsByDirectorId(Integer directorId) {
+        return null;
+    }
+  
+    @Override
+    public Collection<Film> getCommonFilmsBetweenTwoUsers(Integer userId, Integer friendId) {
+        return null;
+    }
+
     private boolean checkIdNotDuplicated(int id) {
         if (!films.containsKey(id)) {
-            log.warn("ID has been checked");
+            log.info("ID has been checked");
             return true;
         } else {
             log.warn("Id exists");
